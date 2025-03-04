@@ -1,7 +1,7 @@
 package com.shinhan.peoch.security.jwt;
 
-import com.shinhan.peoch.auth.entity.UserEntity;
-import com.shinhan.peoch.auth.repository.UserRepository;
+import com.shinhan.entity.UserEntity;
+import com.shinhan.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

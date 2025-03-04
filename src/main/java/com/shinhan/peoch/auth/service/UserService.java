@@ -1,7 +1,7 @@
 package com.shinhan.peoch.auth.service;
 
-import com.shinhan.peoch.auth.entity.UserEntity;
-import com.shinhan.peoch.auth.repository.UserRepository;
+import com.shinhan.entity.UserEntity;
+import com.shinhan.repository.UserRepository;
 import com.shinhan.peoch.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

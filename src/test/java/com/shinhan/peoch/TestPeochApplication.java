@@ -1,5 +1,6 @@
 package com.shinhan.peoch;
 
+import com.shinhan.PeochApplication;
 import org.springframework.boot.SpringApplication;
 
 public class TestPeochApplication {
