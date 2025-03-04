@@ -1,4 +1,4 @@
-//package com.shinhan.peoch.auth.entity;
+//package com.shinhan.peoch.lifecycleincome.entity;
 //
 //import jakarta.persistence.*;
 //import lombok.*;
@@ -8,14 +8,16 @@
 //import java.time.LocalDate;
 //import java.time.LocalDateTime;
 //
-//@Getter @Setter
+//@Getter
+//@Setter
 //@ToString
 //@Builder
-//@NoArgsConstructor @AllArgsConstructor
+//@NoArgsConstructor
+//@AllArgsConstructor
 //
 //@Entity
 //@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
-//public class UserEntity {
+//public class LifecycleIncomeEntity {
 //
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,20 +32,20 @@
 //    @Column(nullable = false, length = 100)
 //    private String name;
 //
+//    @Column(nullable = true)
 //    private LocalDate birthdate;
 //
+//    @Column(nullable = true, length = 20)
 //    private String phone;
 //
+//    @Column(nullable = true, length = 255)
 //    private String address;
 //
-//    @Enumerated(EnumType.STRING)
-//    @Column(nullable = false, length = 10)
-//    private UserRole role;
 //
 //    @CreationTimestamp
+//    @Column(updatable = false)
 //    private LocalDateTime createdAt;
 //
 //    @UpdateTimestamp
 //    private LocalDateTime updatedAt;
-//
 //}

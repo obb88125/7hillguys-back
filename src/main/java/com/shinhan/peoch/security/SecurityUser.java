@@ -1,6 +1,6 @@
 package com.shinhan.peoch.security;
 
-import com.shinhan.peoch.auth.entity.UserEntity;
+import com.shinhan.entity.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
