@@ -1,6 +1,6 @@
 package com.shinhan.peoch.auth.controller;
 
-import com.shinhan.entity.UserEntity;
+import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.security.jwt.AuthService;
 import com.shinhan.peoch.security.jwt.JwtUtil;
