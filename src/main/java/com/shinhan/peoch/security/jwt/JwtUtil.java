@@ -1,6 +1,6 @@
 package com.shinhan.peoch.security.jwt;
 
-import com.shinhan.peoch.auth.entity.UserEntity;
+import com.shinhan.entity.UserEntity;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
