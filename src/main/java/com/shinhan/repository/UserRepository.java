@@ -1,6 +1,7 @@
 package com.shinhan.repository;
 
-import com.shinhan.entity.UserEntity;
+
+import com.shinhan.peoch.auth.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
