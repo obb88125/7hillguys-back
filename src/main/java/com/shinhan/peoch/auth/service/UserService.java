@@ -1,9 +1,11 @@
 package com.shinhan.peoch.auth.service;
 
+import com.shinhan.peoch.auth.dto.UserResponseDTO;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.repository.UserRepository;
 import com.shinhan.peoch.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -43,5 +45,12 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         return new SecurityUser(user);
+    }
+
+    public UserResponseDTO getCurrentUser(@AuthenticationPrincipal UserEntity userEntity) {
+        if (userEntity == null) {
+            throw new RuntimeException("인증되지 않은 사용자입니다.");
+        }
+        return new UserResponseDTO(userEntity.getUserId(), userEntity.getName());
     }
 }
