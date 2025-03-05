@@ -1,5 +1,6 @@
 package com.shinhan.peoch.auth.controller;
 
+import com.shinhan.peoch.auth.dto.UserResponseDTO;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.security.jwt.AuthService;
@@ -8,10 +9,14 @@ import com.shinhan.peoch.security.jwt.TokenBlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+
 @RequestMapping("/api/auth")
 public class AuthController {
     private final UserService userService;
@@ -25,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UserEntity user) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserEntity user) {
         return authService.login(user);
     }
 
@@ -47,6 +52,11 @@ public class AuthController {
         tokenBlacklistService.blacklistToken(token, expirationTime);
 
         return ResponseEntity.ok("로그아웃이 성공적으로 완료되었습니다.");
+    }
+
+    @GetMapping("/user")
+    public UserResponseDTO getCurrentUser(@AuthenticationPrincipal UserEntity userEntity) {
+        return userService.getCurrentUser(userEntity);
     }
 
 }
