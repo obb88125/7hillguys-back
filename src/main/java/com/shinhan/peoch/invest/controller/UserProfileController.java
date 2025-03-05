@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/profile")
+@RequestMapping("/api/review")
 @RequiredArgsConstructor
 public class UserProfileController {
     private final UserProfileService userProfileService;
 
-    @PostMapping("save")
+    @PostMapping("/save")
     public ResponseEntity<UserProfileEntity> saveUserProfile(@RequestBody UserProfileDTO dto) {
         UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
         return ResponseEntity.ok(savedProfile);
