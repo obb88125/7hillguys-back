@@ -89,4 +89,27 @@ public class JwtUtil {
     public long getExpirationTime(String token) {
         return parseClaims(token).getExpiration().getTime() - System.currentTimeMillis();
     }
+
+    public UserEntity getUserFromToken(String token) {
+        Claims claims = parseClaims(token);
+        Long userId = claims.get("userId", Long.class);
+        String userName = claims.get("userName", String.class);
+        String userEmail = claims.get("userEmail", String.class);
+        String userRole = claims.get("userRole", String.class);
+    
+        if (userId == null || userName == null || userEmail == null || userRole == null) {
+            log.error("입력되지 않은 정보가 있음 : ", claims);
+            return null;
+        }
+    
+        UserEntity user = new UserEntity();
+        user.setUserId(userId);
+        user.setName(userName);
+        user.setEmail(userEmail);
+        user.setRole(userRole);
+    
+        return user;
+    }
+
+
 }

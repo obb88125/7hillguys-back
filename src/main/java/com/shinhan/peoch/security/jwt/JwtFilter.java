@@ -18,7 +18,7 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class JwtFilter  extends OncePerRequestFilter {
+public class JwtFilter extends OncePerRequestFilter {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
@@ -28,15 +28,15 @@ public class JwtFilter  extends OncePerRequestFilter {
             throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
 
-        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
 
-            if(tokenBlacklistService.isTokenBlacklisted(token)) {
+            if (tokenBlacklistService.isTokenBlacklisted(token)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
 
-            if(jwtUtil.validationToken(token)) {
+            if (jwtUtil.validationToken(token)) {
                 String email = jwtUtil.getUserEmail(token);
                 log.info("JwtFilter에서 추출된 이메일: {}", email);
                 if (email == null) {
@@ -53,4 +53,11 @@ public class JwtFilter  extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return true; 
+    }
+    
+    
 }

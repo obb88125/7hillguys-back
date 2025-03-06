@@ -22,13 +22,14 @@ public class SecurityConfig {
 
     private static final String[] USER_LIST = {"/api/auth/logout"};
     private static final String[] ADMIN_LIST ={};
-    private static final String[] WHITE_LIST={"/api/auth/register", "/api/auth/login"};
+    private static final String[] WHITE_LIST={"/api/auth/register", "card/design/insert","/api/auth/login"};
 
+ 
     @Bean
     public SecurityFilterChain filterChain2(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(c -> c.disable());
 
-        httpSecurity.authorizeHttpRequests(auth -> {
+       /*  httpSecurity.authorizeHttpRequests(auth -> {
             auth.requestMatchers(WHITE_LIST).permitAll();
             auth.requestMatchers(ADMIN_LIST).hasRole("ADMIN");
             auth.requestMatchers(USER_LIST).hasRole("USER");
@@ -39,7 +40,12 @@ public class SecurityConfig {
         });
 
         httpSecurity.addFilterBefore(new JwtFilter(userService, jwtUtil, tokenBlacklistService),
-                UsernamePasswordAuthenticationFilter.class);
+                UsernamePasswordAuthenticationFilter.class); */
+
+        httpSecurity.authorizeHttpRequests(auth -> {
+            auth.anyRequest().permitAll();
+        });
+ 
 
         return httpSecurity.build();
     }
