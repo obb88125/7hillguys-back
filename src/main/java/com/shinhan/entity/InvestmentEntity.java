@@ -43,7 +43,7 @@ public class InvestmentEntity {
 
     private Boolean isActive; // 활성화 여부
 
-    private Integer refundRate; // 환급 비율 (%)
+    private Double refundRate; // 환급 비율 (%)
 
     private Integer maxInvestment; // 최대 투자 금액
 

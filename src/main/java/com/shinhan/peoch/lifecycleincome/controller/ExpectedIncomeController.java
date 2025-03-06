@@ -23,9 +23,8 @@ public class ExpectedIncomeController {
 
     @GetMapping("/{userProfileId}")
     public ResponseEntity<List<ExpectedIncomeEntity>> getExpectedIncomes(
-
             @PathVariable Integer userProfileId) {
-        System.out.println("접근은 했어!");
+
         List<ExpectedIncomeEntity> incomes = expectedIncomeService.getExpectedIncomesByUserProfileId(userProfileId);
         return ResponseEntity.ok(incomes);
     }

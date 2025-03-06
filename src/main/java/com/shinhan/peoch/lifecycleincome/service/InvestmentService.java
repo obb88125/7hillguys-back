@@ -19,13 +19,14 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class InvestmentService {
-
+    private final double rateofreturn = 0.15;
     @Autowired
     private ExpectedIncomeRepository expectedIncomeRepository;
 
     @Autowired
     private InflationRateRepository inflationRateRepository;
-
+    @Autowired
+    private ExpectedValueService expectedValueService;
     @Autowired
     private InvestmentRepository investmentRepository;
     @Autowired
@@ -106,12 +107,11 @@ public class InvestmentService {
                 .originalInvestValue(0L)
                 .monthlyAllowance(0)
                 .isActive(false)
-                .refundRate(0)
-                .maxInvestment((int) (totalPresentValue * 0.2)) // 현재 가치의 20%
+                .maxInvestment((int)((totalPresentValue)*(0.2)/(1+rateofreturn))) // 우리 수익률 10%를 잡고
                 .investValue(0L)
-                .refundRate(null)
+                .refundRate(0.0)
                 .tempAllowance(0)
-                .startDate( LocalDate.now()) // 투자 시작 날짜를 오늘로 설정
+                .startDate( LocalDate.now()) // 투자 시작 날짜를 임시로 설정(투자 승인날에 업데이트 해줘야함)
                 .endDate(user.getBirthdate().plusYears(65)) // 투자 종료 날짜를 사용자의 65세가 되는 날로 설정
                 .build();
 
@@ -138,5 +138,19 @@ public class InvestmentService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse JSON", e);
         }
+    }
+
+    public double updateRefundRate(Integer userId) {
+        InvestmentEntity investment = investmentRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Investment not found for user ID: " + userId));
+
+        double presentValue = expectedValueService.calculatePresentValue(userId);
+        double refundRate = ((investment.getOriginalInvestValue() * 1.15) / presentValue * 100);
+        refundRate = Math.round(refundRate * 1000) / 1000.0;
+
+        investment.setRefundRate(refundRate);
+        investmentRepository.save(investment);
+
+        return refundRate;
     }
 }
