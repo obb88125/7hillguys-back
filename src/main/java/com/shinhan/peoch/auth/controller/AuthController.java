@@ -3,6 +3,7 @@ package com.shinhan.peoch.auth.controller;
 import com.shinhan.peoch.auth.dto.UserResponseDTO;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
+import com.shinhan.peoch.security.SecurityUser;
 import com.shinhan.peoch.security.jwt.AuthService;
 import com.shinhan.peoch.security.jwt.JwtUtil;
 import com.shinhan.peoch.security.jwt.TokenBlacklistService;
@@ -48,6 +49,11 @@ public class AuthController {
             return ResponseEntity.badRequest().body("유효하지 않은 토큰입니다.");
         }
 
+        String email = jwtUtil.getUserEmail(token);
+        if(email == null) {
+            return ResponseEntity.badRequest().body("JWT에서 이메일을 추출할 수 없습니다.");
+        }
+
         long expirationTime = jwtUtil.getExpirationTime(token);
         tokenBlacklistService.blacklistToken(token, expirationTime);
 
@@ -55,8 +61,11 @@ public class AuthController {
     }
 
     @GetMapping("/user")
-    public UserResponseDTO getCurrentUser(@AuthenticationPrincipal UserEntity userEntity) {
-        return userService.getCurrentUser(userEntity);
+    public UserResponseDTO getCurrentUser(@AuthenticationPrincipal SecurityUser securityUser) {
+        if (securityUser == null) {
+            throw new RuntimeException("SecurityUser인증되지 않은 사용자입니다.");
+        }
+        return new UserResponseDTO(securityUser.getUserId());
     }
 
 }

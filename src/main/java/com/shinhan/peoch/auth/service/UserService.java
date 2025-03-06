@@ -57,7 +57,7 @@ public class UserService implements UserDetailsService {
         if (userEntity == null) {
             throw new RuntimeException("인증되지 않은 사용자입니다.");
         }
-        return new UserResponseDTO(userEntity.getUserId(), userEntity.getName());
+        return new UserResponseDTO(userEntity.getUserId());
     }
 
 }
