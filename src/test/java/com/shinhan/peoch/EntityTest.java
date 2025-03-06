@@ -1,5 +1,6 @@
 package com.shinhan.peoch;
 
+import com.shinhan.PeochApplication;
 import com.shinhan.entity.*;
 import com.shinhan.repository.*;
 
@@ -11,9 +12,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 @EnableJpaRepositories(basePackages = "com.shinhan.repository")
 @EntityScan(basePackages = "com.shinhan.entity")
-@SpringBootTest
+@SpringBootTest(classes = PeochApplication.class)
+
+
 public class EntityTest {
 
     @Autowired
@@ -78,8 +82,7 @@ public class EntityTest {
     public void testUserProfileEntity() {
         UserProfileEntity profile = UserProfileEntity.builder()
                 .userId(1)
-                .university("{\"name\":\"Seoul University\"}")
-                .educationMajor("{\"major\":\"Computer Science\"}")
+                .universityInfo("{\"name\":\"Seoul University\"}")
                 .certification("{\"certs\":[\"Java\",\"AWS\"]}")
                 .familyStatus("{\"members\":4}")
                 .assets(10000000L)
