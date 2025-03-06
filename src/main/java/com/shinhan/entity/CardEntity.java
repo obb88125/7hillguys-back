@@ -1,0 +1,60 @@
+package com.shinhan.entity;
+
+import com.shinhan.peoch.auth.entity.UserEntity;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "cards")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class CardEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long cardId;
+
+    @Column(unique = true, length = 16)
+    private String cardNumber;
+
+    private String enName;
+
+    @Column(length = 4)
+    private String password;
+
+    @Column(length = 3)
+    private String cvc;
+
+    @Column(length = 5)
+    private String issuedDate;
+
+    @Column(length = 5)
+    private String expirationDate;
+
+    @Enumerated(EnumType.STRING)
+    private CardStatus status;
+
+    private Integer monthlyAllowance;
+
+    private Integer tempAllowance;
+
+    private Integer monthlySpent;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    @OneToOne
+    @JoinColumn(name = "userId")
+    UserEntity user;
+
+}
