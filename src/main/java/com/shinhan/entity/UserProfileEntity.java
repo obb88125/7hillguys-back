@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+@ToString
 @Getter @Setter @Builder
 @NoArgsConstructor @AllArgsConstructor
 @Entity

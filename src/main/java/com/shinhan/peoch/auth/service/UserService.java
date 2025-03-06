@@ -44,4 +44,8 @@ public class UserService implements UserDetailsService {
 
         return new SecurityUser(user);
     }
+    public UserEntity getUserById(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userId));
+    }
 }
