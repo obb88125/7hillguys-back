@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InflationRateRepository extends JpaRepository<InflationRateEntity, Integer> {
+    InflationRateEntity findByYear(Integer year);
 }
