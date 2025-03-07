@@ -22,11 +22,11 @@ public class PaymentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
 
-    private Long originalAmount;
+    private Integer originalAmount;
 
-    private Long discountAmount;
+    private Integer discountAmount;
 
-    private Long finalAmount;
+    private Integer finalAmount;
 
     private LocalDateTime date;
 

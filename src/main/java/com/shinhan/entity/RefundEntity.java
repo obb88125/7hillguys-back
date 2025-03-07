@@ -20,7 +20,7 @@ public class RefundEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long refundId;
 
-    private Long amount;
+    private Integer amount;
 
     private LocalDateTime date;
 
