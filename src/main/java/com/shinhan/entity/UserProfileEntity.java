@@ -15,35 +15,35 @@ import java.time.LocalDateTime;
 public class UserProfileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userProfileId;
+    private Integer userProfileId;  //PK
 
     @Column(nullable = false)
     private Integer userId;
 
     @Column(columnDefinition = "JSON")
-    private String universityInfo;
+    private String universityInfo;      //JSON데이터: 학교, 학과
 
     @Column(columnDefinition = "JSON")
-    private String studentCard;
+    private String studentCard;         //JSON데이터: 고등학교, 내신성적
 
     @Column(columnDefinition = "JSON")
-    private String certification;
+    private String certification;       //JSON데이터: 자격증명 0개 이상
 
     @Column(columnDefinition = "JSON")
-    private String familyStatus;
+    private String familyStatus;        //JSON데이터: 결혼여부(0:미혼, 1:결혼), 자녀수
 
-    private Long assets;
+    private Long assets;                //자산
 
-    private Boolean criminalRecord;
+    private Boolean criminalRecord;     //범죄여부기록(0:범죄기록 없음, 1:범죄기록 있음)
 
-    private Integer healthStatus; // 점수 (1~100)
+    private Integer healthStatus;       //건강점검 데이터 점수 (1~100)
 
-    private Boolean gender; // 성별
+    private Boolean gender;             //성별(0:남자, 1:여자)
 
     @Column(length = 255)
     private String address;
 
-    private Integer mentalStatus; // 점수
+    private Integer mentalStatus;       //정신건강 점수
 
     @CreationTimestamp
     private LocalDateTime createdAt;

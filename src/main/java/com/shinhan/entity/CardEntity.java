@@ -1,5 +1,6 @@
 package com.shinhan.entity;
 
+import com.shinhan.peoch.auth.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,47 +8,53 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Getter @Setter @Builder
-@NoArgsConstructor @AllArgsConstructor
 @Entity
 @Table(name = "cards")
-public class CardsEntity {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class CardEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer cardId;
+    private Long cardId;
 
-    @Column(nullable = false)
-    private Integer userId;
-
-    @Column(nullable = false, length = 50)
+    @Column(unique = true, length = 16)
     private String cardNumber;
 
-    @Column(length = 20)
     private String enName;
 
-    @Column(length = 50)
+    @Column(length = 4)
     private String password;
 
-    @Column(length = 50)
+    @Column(length = 3)
     private String cvc;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 5)
     private String issuedDate;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 5)
     private String expirationDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private CardStatus status; // PENDING_APPROVAL, ACTIVE, INACTIVE
+    private CardStatus status;
 
     private Integer monthlyAllowance;
 
     private Integer tempAllowance;
+
+    private Integer monthlySpent;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @OneToOne
+    @JoinColumn(name = "userId")
+    UserEntity user;
+
 }
