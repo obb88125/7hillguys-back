@@ -207,12 +207,30 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
 ### Gradle ###
 .gradle
 **/build/
 !src/**/build/
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
 
+### IntelliJ IDEA ###
+.idea
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -224,15 +242,26 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
-
+!**/src/main/**/out/
+!**/src/test/**/out/
+*.iml
+*.ipr
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 # Eclipse Gradle plugin generated files
 # Eclipse Core
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
-
+### VS Code ###
+.vscode/
 ### Gradle Patch ###
 # Java heap dump
 *.hprof
-
+### yml ###
+src/main/resources/application.yml
 # End of https://www.toptal.com/developers/gitignore/api/gradle,intellij,visualstudiocode,windows,macos,react
