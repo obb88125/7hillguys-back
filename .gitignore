@@ -213,10 +213,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-### Gradle ###
-.gradle
-**/build/
-!src/**/build/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -231,21 +228,13 @@ bin/
 
 ### IntelliJ IDEA ###
 .idea
-# Ignore Gradle GUI config
-gradle-app.setting
-
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
-
-# Avoid ignore Gradle wrappper properties
-!gradle-wrapper.properties
-
-# Cache of project
-.gradletasknamecache
-!**/src/main/**/out/
-!**/src/test/**/out/
+*.iws
 *.iml
 *.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -264,4 +253,6 @@ gradle-app.setting
 *.hprof
 ### yml ###
 src/main/resources/application.yml
-# End of https://www.toptal.com/developers/gitignore/api/gradle,intellij,visualstudiocode,windows,macos,react
+
+### macOS 시스템 파일 방지 ###
+.DS_Store.DS_Store
