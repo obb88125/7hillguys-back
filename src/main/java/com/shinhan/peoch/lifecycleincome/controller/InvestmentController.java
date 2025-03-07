@@ -2,6 +2,7 @@ package com.shinhan.peoch.lifecycleincome.controller;
 
 
 import com.shinhan.entity.InvestmentEntity;
+import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
 import com.shinhan.peoch.lifecycleincome.service.InvestmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,5 +23,9 @@ public class InvestmentController {
     public ResponseEntity<Double> updateRefundRate(@PathVariable Integer userId) {
         double refundRate = investmentService.updateRefundRate(userId);
         return ResponseEntity.ok(refundRate);
+    }
+    @GetMapping("/investment/tempallowance/{userId}")
+    public InvestmentTempAllowanceDTO getInvestmentDetails(@PathVariable Integer userId) {
+        return investmentService.calculateInvestmentDetails(userId);
     }
 }

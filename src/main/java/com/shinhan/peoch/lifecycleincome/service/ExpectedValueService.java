@@ -21,8 +21,8 @@ public class ExpectedValueService {
     @Autowired
     private InflationRateRepository inflationRateRepository;
 
-    public Double calculatePresentValue(Integer userId) {
-        List<ExpectedIncomeEntity> incomeEntities = expectedIncomeRepository.findByUserProfileId(userId);
+    public Double calculatePresentValue(Integer grantId) {
+        List<ExpectedIncomeEntity> incomeEntities = expectedIncomeRepository.findByUserProfileId(grantId);
         if (incomeEntities.isEmpty()) {
             throw new IllegalArgumentException("User not found");
         }

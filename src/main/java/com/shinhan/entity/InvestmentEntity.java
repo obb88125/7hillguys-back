@@ -19,10 +19,8 @@ public class InvestmentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer grantId; // Primary Key
+    private Integer userId; // Primary Key
 
-    @Column(nullable = false)
-    private Integer userId; // UserEntity와의 외래 키 관계
 
     @Column(nullable = false, columnDefinition = "JSON")
     private String expectedIncome; // 예상 수익 (JSON 형식)
