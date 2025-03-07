@@ -1,7 +1,6 @@
 package com.shinhan.peoch.UserProfileNormalization;
 
 import com.shinhan.entity.NormUserProfilesEntity;
-import com.shinhan.peoch.UserProfileNormalization.UserProfileBatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/normalization")
-public class UserProfileController {
+public class UserNormalizeProfileController {
     private final UserProfileBatchService userProfileBatchService;
 
     @PostMapping("/normalize-all")

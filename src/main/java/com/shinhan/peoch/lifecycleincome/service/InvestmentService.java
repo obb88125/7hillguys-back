@@ -3,6 +3,7 @@ package com.shinhan.peoch.lifecycleincome.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shinhan.entity.*;
+import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
 import com.shinhan.repository.ExpectedIncomeRepository;
@@ -102,7 +103,7 @@ public class InvestmentService {
             totalPresentValue += calculatePresentValueForIncome(income, year, discountRate);
         }
         // 나이 가져와!
-        UserEntity user = userService.getUserById(userId);
+        UserEntity user = userService.getUserById(Long.valueOf(userId));
         // InvestmentEntity 생성 및 저장
         InvestmentEntity investment = InvestmentEntity.builder()
                 .userId(userId)
