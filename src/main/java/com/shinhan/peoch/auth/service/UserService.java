@@ -1,14 +1,22 @@
 package com.shinhan.peoch.auth.service;
 
-import com.shinhan.entity.UserEntity;
+import com.shinhan.peoch.auth.dto.UserResponseDTO;
+import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.repository.UserRepository;
 import com.shinhan.peoch.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -44,8 +52,12 @@ public class UserService implements UserDetailsService {
 
         return new SecurityUser(user);
     }
-    public UserEntity getUserById(Integer userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userId));
+
+    public UserResponseDTO getCurrentUser(@AuthenticationPrincipal UserEntity userEntity) {
+        if (userEntity == null) {
+            throw new RuntimeException("인증되지 않은 사용자입니다.");
+        }
+        return new UserResponseDTO(userEntity.getUserId());
     }
+
 }

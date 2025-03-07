@@ -7,24 +7,31 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Getter @Setter @Builder
-@NoArgsConstructor @AllArgsConstructor
 @Entity
-@Table(name = "stores")
-public class StoresEntity {
+@Table(name = "refunds")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RefundEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer storeId;
+    private Long refundId;
 
-    @Column(length = 255)
-    private String name;
+    private Long amount;
 
-    @Column(length = 50)
-    private String category;
+    private LocalDateTime date;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @OneToOne
+    @JoinColumn(name = "paymentId")
+    PaymentEntity payment;
+
 }

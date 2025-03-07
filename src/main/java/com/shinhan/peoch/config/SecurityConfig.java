@@ -1,14 +1,17 @@
 package com.shinhan.peoch.config;
 
-import com.shinhan.peoch.auth.service.UserService;
+import com.shinhan.peoch.security.jwt.JwtFilter;
 import com.shinhan.peoch.security.jwt.JwtUtil;
 import com.shinhan.peoch.security.jwt.TokenBlacklistService;
+import com.shinhan.peoch.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,7 +23,9 @@ public class SecurityConfig {
 
     private static final String[] USER_LIST = {"/api/auth/logout"};
     private static final String[] ADMIN_LIST ={};
-    private static final String[] WHITE_LIST={"/api/auth/register", "/api/auth/login","/api"};
+    private static final String[] WHITE_LIST={
+            "/api/auth/register", "/api/auth/login", "/api/review/save", "/api/review/file"
+    };
 
     @Bean
     public SecurityFilterChain filterChain2(HttpSecurity httpSecurity) throws Exception {

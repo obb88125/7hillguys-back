@@ -1,12 +1,15 @@
 package com.shinhan.peoch.security.jwt;
 
-import com.shinhan.entity.UserEntity;
+import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -15,10 +18,11 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public String login(UserEntity dto) {
+    public ResponseEntity<Map<String, String>> login(UserEntity dto) {
         String email = dto.getEmail();
         String password = dto.getPassword();
         UserEntity user = userRepository.findByEmail(email).orElse(null);
+
         if(user == null) {
             throw new UsernameNotFoundException("해당 이메일의 사용자가 존재하지 않습니다.");
         }
@@ -29,6 +33,6 @@ public class AuthService {
         }
 
         String accessToken = jwtUtil.createAccessToken(user);
-        return accessToken;
+        return ResponseEntity.ok(Map.of("accessToken", accessToken));
     }
 }

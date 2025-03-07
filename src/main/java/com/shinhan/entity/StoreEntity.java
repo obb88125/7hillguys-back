@@ -7,23 +7,27 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Getter @Setter @Builder
-@NoArgsConstructor @AllArgsConstructor
 @Entity
-@Table(name = "myBenefits")
-public class MyBenefitsEntity {
+@Table(name = "stores")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class StoreEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer benefitId;
+    private Long storeId;
 
-    @Column(nullable = false)
-    private Integer cardId; // CardsEntity와의 외래 키 관계
+    private String name;
 
-    private LocalDateTime date;
+    private String category;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
 }
