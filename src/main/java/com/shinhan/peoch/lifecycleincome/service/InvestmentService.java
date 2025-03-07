@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shinhan.entity.*;
 import com.shinhan.peoch.auth.service.UserService;
+import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
 import com.shinhan.repository.ExpectedIncomeRepository;
 import com.shinhan.repository.InflationRateRepository;
 import com.shinhan.repository.InvestmentRepository;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +33,8 @@ public class InvestmentService {
     private InvestmentRepository investmentRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ExpectedIncomeService expectedIncomeService;
     // 투자 정보 저장
     public InvestmentEntity saveInvestment(InvestmentEntity investment) {
         return investmentRepository.save(investment);
@@ -46,7 +50,7 @@ public class InvestmentService {
         return investmentRepository.findAll();
     }
 
-    // 투자 정보 업데이트
+    // 투자 정보 업데이트(사용 X)
     public InvestmentEntity updateInvestment(Integer grantId, InvestmentEntity updatedInvestment) {
         return investmentRepository.findById(grantId).map(investment -> {
             investment.setUserId(updatedInvestment.getUserId());
@@ -67,11 +71,11 @@ public class InvestmentService {
     }
 
     // 투자 정보 삭제? 사용 X active false로 사용할것
-    public void deleteInvestment(Integer grantId) {
-        if (investmentRepository.existsById(grantId)) {
-            investmentRepository.deleteById(grantId);
+    public void deleteInvestment(Integer userId) {
+        if (investmentRepository.existsById(userId)) {
+            investmentRepository.deleteById(userId);
         } else {
-            throw new IllegalArgumentException("해당 투자 정보를 찾을 수 없습니다. ID: " + grantId);
+            throw new IllegalArgumentException("해당 투자 정보를 찾을 수 없습니다. ID: " + userId);
         }
     }
     public InvestmentEntity createInvestment(Integer userId) {
@@ -111,8 +115,8 @@ public class InvestmentService {
                 .investValue(0L)
                 .refundRate(0.0)
                 .tempAllowance(0)
-                .startDate( LocalDate.now()) // 투자 시작 날짜를 임시로 설정(투자 승인날에 업데이트 해줘야함)
-                .endDate(user.getBirthdate().plusYears(65)) // 투자 종료 날짜를 사용자의 65세가 되는 날로 설정
+                .startDate(LocalDate.now()) // 투자 시작 날짜를 임시로 설정(투자 승인날에 업데이트 해줘야함)
+                .endDate(LocalDate.now()) // 사용자가 정한 투자 기간 최대 10년
                 .build();
 
         return investmentRepository.save(investment);
@@ -153,4 +157,66 @@ public class InvestmentService {
 
         return refundRate;
     }
+    /**
+     * 사용자 월 소득과 환급 비율을 기반으로 계산된 환급 금액 반환
+     *
+     * @param userId            사용자 ID
+     * @param userMonthlyIncome 사용자 월 소득
+     * @return 계산된 환급 금액
+     */
+    public int calculateRefundAmount(Integer userId, int userMonthlyIncome) {
+        // 투자 정보 가져오기
+        InvestmentEntity investment = investmentRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 투자 정보를 찾을 수 없습니다. ID: " + userId));
+
+        // 환급 비율 가져오기
+        double refundRate = investment.getRefundRate();
+        if (refundRate <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 환급 비율입니다. 사용자 ID: " + userId);
+        }
+
+        // 월 소득에 환급 비율을 곱하여 계산
+        int refundAmount = (int) Math.round(userMonthlyIncome * refundRate);
+
+        return refundAmount;
+    }
+    public InvestmentTempAllowanceDTO calculateInvestmentDetails(Integer userId) {
+        // 투자 데이터 조회
+        InvestmentEntity investment = investmentRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid grant ID"));
+
+        LocalDate startDate = investment.getStartDate();
+        LocalDate endDate = investment.getEndDate();
+        long maxTotalInvestment = investment.getMaxInvestment();
+        long investValue = investment.getInvestValue();
+
+        // 오늘 날짜 기준 진행률 계산
+        double progress = calculateInvestmentProgress(startDate, endDate);
+
+        // 현재 지원 가능 금액 계산
+        long availableAmount = (long) (maxTotalInvestment * progress);
+
+        // 예상 생애 총소득 총액
+        double expectedIncome = expectedValueService.calculatePresentValue(userId);
+
+        double refundRate = updateRefundRate(userId);
+        List<ExpectedIncomeEntity> incomes = expectedIncomeService.getExpectedIncomesByUserProfileId(investment.getUserId());
+        // 결과 반환
+        return new InvestmentTempAllowanceDTO(availableAmount, investValue, progress, expectedIncome, refundRate, incomes);
+    }
+
+    private double calculateInvestmentProgress(LocalDate startDate, LocalDate endDate) {
+        LocalDate today = LocalDate.now();
+
+        if (today.isBefore(startDate)) return 0.0; // 아직 시작 전
+        if (today.isAfter(endDate)) return 1.0; // 이미 종료됨
+
+        // 총 기간 (개월 단위)
+        long totalMonths = ChronoUnit.MONTHS.between(startDate, endDate) + 1; // 포함 관계를 위해 +1
+        // 경과 기간 (개월 단위)
+        long elapsedMonths = ChronoUnit.MONTHS.between(startDate, today) + 1;
+
+        return (double) elapsedMonths / totalMonths; // 진행률 (0~1)
+    }
+
 }

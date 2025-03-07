@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface InvestmentRepository extends JpaRepository<InvestmentEntity, Integer> {
-    Optional<InvestmentEntity> findByUserId(Integer userId);
+    Optional<InvestmentEntity> findByUserId(Integer grantId);
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpectedIncomeDTO {
-    private Integer grantId;
+    private Integer userId;
     private Integer userProfileId;
     private String expectedIncome; // JSON 형식의 문자열
 }

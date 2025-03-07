@@ -67,7 +67,6 @@ public class EntityTest {
                 .originalInvestValue(1000000L)
                 .monthlyAllowance(50000)
                 .isActive(true)
-                .refundRate(10)
                 .maxInvestment(2000000)
                 .field("{\"category\":\"Tech\"}")
                 .investValue(1500000L)
