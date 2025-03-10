@@ -105,6 +105,15 @@ public class InvestmentService {
         // 나이 가져와!
         UserEntity user = userService.getUserById(Long.valueOf(userId));
         // InvestmentEntity 생성 및 저장
+        // 연 수익률 계산
+        LocalDate endDate = calculateEndDate(user.getBirthdate());
+        // 3. 연 수익률 계산
+        double annualizedReturnRate = calculateAnnualizedReturnRate(
+                LocalDate.now(),  // 시작일: 현재 날짜
+                endDate,          // 종료일: 65세 생일
+                rateofreturn
+        );
+        // InvestmentEntity 생성 및 저장
         InvestmentEntity investment = InvestmentEntity.builder()
                 .userId(userId)
                 .expectedIncome(latestIncomeEntity.getExpectedIncome())
@@ -112,7 +121,7 @@ public class InvestmentService {
                 .originalInvestValue(0L)
                 .monthlyAllowance(0)
                 .isActive(false)
-                .maxInvestment((int)((totalPresentValue)*(0.2)/(1+rateofreturn))) // 우리 수익률 10%를 잡고
+                .maxInvestment((int)((totalPresentValue)*(0.2)/(1+annualizedReturnRate))) // 연 수익률 적용
                 .investValue(0L)
                 .refundRate(0.0)
                 .tempAllowance(0)
@@ -148,15 +157,28 @@ public class InvestmentService {
     public double updateRefundRate(Integer userId) {
         InvestmentEntity investment = investmentRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Investment not found for user ID: " + userId));
+        UserEntity user = userService.getUserById(Long.valueOf(userId));
+        // InvestmentEntity 생성 및 저장
+        // 연 수익률 계산
+        LocalDate endDate = calculateEndDate(user.getBirthdate());
+        // 연 수익률 계산
+        double annualizedReturnRate = calculateAnnualizedReturnRate(investment.getStartDate(), endDate, rateofreturn);
 
         double presentValue = expectedValueService.calculatePresentValue(userId);
-        double refundRate = ((investment.getOriginalInvestValue() * 1.15) / presentValue * 100);
+        double refundRate = ((investment.getOriginalInvestValue() * (1+annualizedReturnRate)) / presentValue * 100);
         refundRate = Math.round(refundRate * 1000) / 1000.0;
 
         investment.setRefundRate(refundRate);
         investmentRepository.save(investment);
 
         return refundRate;
+    }
+    // 연 수익률 계산 메서드
+    private double calculateAnnualizedReturnRate(LocalDate startDate, LocalDate endDate, double rateOfReturn) {
+        long months = ChronoUnit.MONTHS.between(startDate, endDate);
+        if (months == 0) throw new IllegalArgumentException("투자 기간은 1개월 이상입니다.");
+        double years = (double) months / 12;
+        return Math.pow(1 + rateOfReturn, 1 / years) - 1;
     }
     /**
      * 사용자 월 소득과 환급 비율을 기반으로 계산된 환급 금액 반환
@@ -218,6 +240,14 @@ public class InvestmentService {
         long elapsedMonths = ChronoUnit.MONTHS.between(startDate, today) + 1;
 
         return (double) elapsedMonths / totalMonths; // 진행률 (0~1)
+    }
+    private LocalDate calculateEndDate(LocalDate birthDate) {
+        LocalDate sixtyFifthBirthday = birthDate.plusYears(65);
+        // 생일이 현재 날짜보다 이전인 경우 다음 해로 조정 (예: 2025-03-10 생일 → 2055-03-10)
+        if (sixtyFifthBirthday.isBefore(LocalDate.now())) {
+            sixtyFifthBirthday = sixtyFifthBirthday.plusYears(1);
+        }
+        return sixtyFifthBirthday;
     }
 
 }
