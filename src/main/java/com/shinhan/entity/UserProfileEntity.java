@@ -17,7 +17,7 @@ public class UserProfileEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userProfileId;  //PK
 
-    @Column(nullable = false)
+    @Column(name = "user_id")
     private Integer userId;
 
     @Column(columnDefinition = "JSON")

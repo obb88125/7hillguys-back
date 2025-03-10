@@ -27,15 +27,15 @@ public class InvestmentService {
     private ExpectedIncomeRepository expectedIncomeRepository;
 
     @Autowired
-    private InflationRateRepository inflationRateRepository;
+    InflationRateRepository inflationRateRepository;
     @Autowired
-    private ExpectedValueService expectedValueService;
+    ExpectedValueService expectedValueService;
     @Autowired
-    private InvestmentRepository investmentRepository;
+    InvestmentRepository investmentRepository;
     @Autowired
-    private UserService userService;
+    UserService userService;
     @Autowired
-    private ExpectedIncomeService expectedIncomeService;
+    ExpectedIncomeService expectedIncomeService;
     // 투자 정보 저장
     public InvestmentEntity saveInvestment(InvestmentEntity investment) {
         return investmentRepository.save(investment);
@@ -155,8 +155,8 @@ public class InvestmentService {
     }
 
     public double updateRefundRate(Integer userId) {
-        InvestmentEntity investment = investmentRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Investment not found for user ID: " + userId));
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+
         UserEntity user = userService.getUserById(Long.valueOf(userId));
         // InvestmentEntity 생성 및 저장
         // 연 수익률 계산
@@ -189,8 +189,7 @@ public class InvestmentService {
      */
     public int calculateRefundAmount(Integer userId, int userMonthlyIncome) {
         // 투자 정보 가져오기
-        InvestmentEntity investment = investmentRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 투자 정보를 찾을 수 없습니다. ID: " + userId));
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
 
         // 환급 비율 가져오기
         double refundRate = investment.getRefundRate();

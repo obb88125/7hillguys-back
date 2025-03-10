@@ -18,7 +18,7 @@ import java.util.List;
 public class ExpectedIncomeController {
 
     @Autowired
-    private ExpectedIncomeService expectedIncomeService;
+    ExpectedIncomeService expectedIncomeService;
 
 
     @GetMapping("/expectedincome/{userProfileId}")
