@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class InvestmentService {
+public class InvestmentResultService {
     private final InvestmentRepository investmentRepository;
 
     @Transactional(readOnly = true)
