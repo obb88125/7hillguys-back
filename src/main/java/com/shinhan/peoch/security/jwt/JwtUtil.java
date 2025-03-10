@@ -43,7 +43,7 @@ public class JwtUtil {
         ZonedDateTime tokenValidity = now.plusSeconds(expireTime);
 
         return Jwts.builder()
-                .setClaims(claims) //정보 저장
+                .setClaims(claims) //사용자 정보 저장
                 .setIssuedAt(Date.from(now.toInstant()))	//발급 시간
                 .setExpiration(Date.from(tokenValidity.toInstant())) // set 만료시간
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘과 signature 에 들어갈 secret값 세팅
@@ -53,12 +53,10 @@ public class JwtUtil {
     public String getUserEmail(String token) {
         Claims claims = parseClaims(token);
         String email = claims.get("userEmail", String.class);
-
         if (email == null) {
             log.error("JWT에서 userEmail을 추출할 수 없음! Claims: {}", claims);
         }
         return email;
-//        return parseClaims(token).get("userEmail", String.class);
     }
 
     public boolean validationToken(String token) {
@@ -86,7 +84,7 @@ public class JwtUtil {
         }
     }
 
-    //JWT 남은 만료 시간 가져오는 메서드
+    // JWT 남은 만료 시간(밀리초 단위) 계산
     public long getExpirationTime(String token) {
         return parseClaims(token).getExpiration().getTime() - System.currentTimeMillis();
     }
