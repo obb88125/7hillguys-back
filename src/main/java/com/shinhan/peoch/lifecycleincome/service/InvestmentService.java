@@ -108,7 +108,7 @@ public class InvestmentService {
         InvestmentEntity investment = InvestmentEntity.builder()
                 .userId(userId)
                 .expectedIncome(latestIncomeEntity.getExpectedIncome())
-                .status(InvestmentStatus.승인대기중) // 승인 대기중 상태
+                .status(InvestmentStatus.대기) // 승인 대기중 상태
                 .originalInvestValue(0L)
                 .monthlyAllowance(0)
                 .isActive(false)
