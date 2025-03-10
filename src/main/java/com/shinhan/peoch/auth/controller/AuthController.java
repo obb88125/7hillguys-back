@@ -38,20 +38,20 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
-        if(token == null || !token.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().body("유효하지 않은 토큰입니다.");
         }
 
-        token = token.substring(7); //"Bearer " 제거
+        String token = authHeader.substring(7); // "Bearer " 제거
 
-        if(!jwtUtil.validationToken(token)) {
+        if (!jwtUtil.validationToken(token)) {
             return ResponseEntity.badRequest().body("유효하지 않은 토큰입니다.");
         }
 
         String email = jwtUtil.getUserEmail(token);
-        if(email == null) {
+        if (email == null) {
             return ResponseEntity.badRequest().body("JWT에서 이메일을 추출할 수 없습니다.");
         }
 

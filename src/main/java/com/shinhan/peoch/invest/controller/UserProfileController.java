@@ -3,6 +3,7 @@ package com.shinhan.peoch.invest.controller;
 import com.shinhan.entity.UserProfileEntity;
 import com.shinhan.peoch.invest.dto.UserProfileDTO;
 import com.shinhan.peoch.invest.dto.UserProfileFileDTO;
+import com.shinhan.peoch.invest.service.UserProfileFileService;
 import com.shinhan.peoch.invest.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UserProfileController {
     private final UserProfileService userProfileService;
+    private final UserProfileFileService userProfileFileService;
 
     @PostMapping("/save")
     public ResponseEntity<UserProfileEntity> saveUserProfile(@RequestBody UserProfileDTO dto) {
@@ -33,20 +35,47 @@ public class UserProfileController {
             @RequestParam(value = "criminalRecordFile", required = false) MultipartFile criminalRecordFile
     ) {
         try {
-            // 파일 저장 (컨트롤러에서 prefix 지정)
-            String universityFilePath = userProfileService.saveFile(universityCertificate, "university");
-            String studentCardFilePath = userProfileService.saveFile(studentCardFile, "student_card");
-            String familyFilePath = userProfileService.saveFile(familyCertificate, "family");
-            String criminalFilePath = userProfileService.saveFile(criminalRecordFile, "criminal");
+            log.info("[submitUserProfile] 파일 업로드 요청 수신");
 
-            StringBuilder certPaths = new StringBuilder();
-            if (certificationFiles != null) {
+            // 업로드된 파일 목록 확인
+            log.info("대학 증명서 파일: {}", (universityCertificate != null ? universityCertificate.getOriginalFilename() : "없음"));
+            log.info("학생증 파일: {}", (studentCardFile != null ? studentCardFile.getOriginalFilename() : "없음"));
+            log.info("가족 증명서 파일: {}", (familyCertificate != null ? familyCertificate.getOriginalFilename() : "없음"));
+            log.info("범죄 기록 파일: {}", (criminalRecordFile != null ? criminalRecordFile.getOriginalFilename() : "없음"));
+
+            // 자격증 파일 배열 로그 추가
+            if (certificationFiles != null && certificationFiles.length > 0) {
                 for (MultipartFile certFile : certificationFiles) {
-                    String certPath = userProfileService.saveFile(certFile, "certificate");
-                    if (certPath != null) {
+                    System.out.println("📂 자격증 파일: " + certFile.getOriginalFilename());
+                }
+            } else {
+                System.out.println("❌ 자격증 파일 없음");
+            }
+
+
+            // 파일 저장 경로 설정
+            String universityFilePath = (universityCertificate != null && !universityCertificate.isEmpty()) ?
+                    userProfileFileService.saveFile(universityCertificate, "university") : "파일 없음";
+            String studentCardFilePath = (studentCardFile != null && !studentCardFile.isEmpty()) ?
+                    userProfileFileService.saveFile(studentCardFile, "student_card") : "파일 없음";
+            String familyFilePath = (familyCertificate != null && !familyCertificate.isEmpty()) ?
+                    userProfileFileService.saveFile(familyCertificate, "family") : "파일 없음";
+            String criminalFilePath = (criminalRecordFile != null && !criminalRecordFile.isEmpty()) ?
+                    userProfileFileService.saveFile(criminalRecordFile, "criminal") : "파일 없음";
+
+            // 자격증 파일 저장
+            StringBuilder certPaths = new StringBuilder();
+            if (certificationFiles != null && certificationFiles.length > 0) {
+                log.info("자격증 파일 개수: {}", certificationFiles.length);
+                for (MultipartFile certFile : certificationFiles) {
+                    if (certFile != null && !certFile.isEmpty()) {
+                        String certPath = userProfileFileService.saveFile(certFile, "certificate");
                         certPaths.append(certPath).append("\n");
+                        log.info("[submitUserProfile] 자격증 파일 저장 완료: {}", certPath);
                     }
                 }
+            } else {
+                log.info("자격증 파일 없음.");
             }
 
             return ResponseEntity.ok("파일 업로드 성공\n"
@@ -54,8 +83,9 @@ public class UserProfileController {
                     + "학생증: " + studentCardFilePath + "\n"
                     + "가족 증명서: " + familyFilePath + "\n"
                     + "범죄 기록: " + criminalFilePath + "\n"
-                    + "자격증: " + certPaths.toString());
+                    + "자격증:\n" + certPaths.toString());
         } catch (Exception e) {
+            log.error("파일 업로드 중 오류 발생: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body("파일 업로드 실패: " + e.getMessage());
         }
     }
