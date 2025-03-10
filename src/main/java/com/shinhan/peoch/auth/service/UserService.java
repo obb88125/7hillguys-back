@@ -53,5 +53,10 @@ public class UserService implements UserDetailsService {
         }
         return new UserResponseDTO(userEntity.getUserId());
     }
+    public UserEntity getUserById(Long userId) {
+        // Optional을 사용하여 userId로 사용자 검색
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 사용자가 존재하지 않습니다."));
+    }
 
 }

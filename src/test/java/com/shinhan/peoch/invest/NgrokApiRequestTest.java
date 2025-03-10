@@ -1,12 +1,14 @@
 package com.shinhan.peoch.invest;
 
+import com.shinhan.PeochApplication;
 import com.shinhan.peoch.lifecycleincome.service.NgrokApiRequest;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+
+@SpringBootTest(classes = PeochApplication.class)
 public class NgrokApiRequestTest {
 
     @Autowired
@@ -15,7 +17,7 @@ public class NgrokApiRequestTest {
     @Test
     public void testSendRequestToApi() throws JSONException {
         // Given
-        String model = "llama3.1";
+        String model = "fixed-response";
         String prompt = """
                 다음 대학교들의 생애 소득 잠재력을 0에서 100 사이로 평가하고, 미래 소득 순위를 매겨줘.
                 평가는 다음 기준에 따라 이루어집니다:
