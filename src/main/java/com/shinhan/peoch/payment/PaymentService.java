@@ -35,20 +35,28 @@ public class PaymentService {
 
     // 카드 결제 로직
     public PaymentResponse processPayment(PosRequest request) {
-        // 카드 유효성 검사
+        // 요청한 결제 카드 유효성 검사
         boolean valid = validateCard(request.getCardNumber());
         if (!valid) {
             return new PaymentResponse(false, "유효하지 않은 카드입니다.", "NOT_VALID_CARD");
         }
 
+        // 카드 정보 조회
         Optional<CardEntity> optionalCard = cardRepository.findByCardNumber(request.getCardNumber());
-        CardEntity card = optionalCard.orElseThrow();// 카드엔티티
+        CardEntity card = optionalCard.orElseThrow(); // 카드엔티티
         String cardNumber = card.getCardNumber(); // 카드번호
 
         // 한도 검사
-        if(isLimitExceeded(card, request.getAmount())) {
+        if (isLimitExceeded(card, request.getAmount())) {
             return new PaymentResponse(false, "월 한도를 초과했습니다.", "LIMIT_EXCEEDED");
         }
+
+        // 상점 엔티티 조회
+        Optional<StoreEntity> storeEntityOpt = storeRepository.findById(request.getStoreId());
+        if (storeEntityOpt.isEmpty()) { // 상점이 존재하지 않으면 오류 응답 반환
+            return new PaymentResponse(false, "유효하지 않은 상점입니다.", "NOT_VALID_STORE");
+        }
+        StoreEntity store = storeEntityOpt.get();
 
         // 혜택 적용 검사
         List<BenefitEntity> myBenfitList = myBenefitRepository.findBenefitsByCardNumber(cardNumber);
@@ -65,8 +73,14 @@ public class PaymentService {
                     .orElseThrow(() -> new RuntimeException("해당 혜택을 찾을 수 없습니다."));
         }
 
-        // 상점 엔티티 조회
-        StoreEntity storeEntity = storeRepository.findStoreById(request.getStoreId());
+        // 할부 결제 - installmentMonth 값이 1보다 큰 경우 할부 결제로 처리
+        int installmentMonth = request.getInstallmentMonth();
+        if (installmentMonth > 1) {
+            finalAmount = installmentPayment(card, installmentMonth, finalAmount);
+            if (finalAmount < 0) { // 매달 결제 금액이 한도를 초과
+                return new PaymentResponse(false, "월 한도를 초과했습니다.", "LIMIT_EXCEEDED");
+            }
+        }
 
         // 결제 내역 생성
         PaymentEntity payment = PaymentEntity.builder()
@@ -74,9 +88,11 @@ public class PaymentService {
                 .discountAmount(discountAmount)
                 .finalAmount(finalAmount)
                 .date(LocalDateTime.now())
-                .status(PaymentStatus.PAID)
+                .status(installmentMonth > 1 ? PaymentStatus.PENDING : PaymentStatus.PAID)
+                .installmentMonth(installmentMonth)
+                .installmentRound(installmentMonth > 1 ? 0 : 1)
                 .card(card)
-                .store(storeEntity)
+                .store(store)
                 .benefit(usedBenefitId != null ? benefitEntity : null)
                 .build();
         paymentRepository.save(payment);
@@ -125,7 +141,7 @@ public class PaymentService {
     }
 
     // 혜택 적용 검사
-    public Map<String, Integer> applyBenefit(List<BenefitEntity> myBenfitList, PosRequest request, String cardNumber) {
+    private Map<String, Integer> applyBenefit(List<BenefitEntity> myBenfitList, PosRequest request, String cardNumber) {
         Long storeId = request.getStoreId(); // 포스기로부터 전달받은 상점 ID
         int amount = request.getAmount(); // 결제 금액
         int finalAmount = amount; // 최종 결제 금액
@@ -178,6 +194,22 @@ public class PaymentService {
         map.put("discountAmount", discountAmount);
         return map;
     }
+
+    // 할부 결제
+    private int installmentPayment(CardEntity card, int installmentMonth, int finalAmount) {
+        // 100원 단위 절사
+        int installmentAmount = (finalAmount / installmentMonth) / 100 * 100;
+
+        // 매달 결제 금액이 한도를 넘는지 검사
+        int monthlyAllowance = card.getMonthlyAllowance();
+
+        if (installmentMonth > monthlyAllowance) {
+            return -1;
+        } else {
+            return installmentAmount;
+        }
+    }
+
 
 //    // 카드 환불 로직
 //    public void processRefund(RefundRequest request) {

@@ -37,8 +37,6 @@ public class PaymentEntity {
 
     private Integer installmentRound;
 
-    private String currency;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
