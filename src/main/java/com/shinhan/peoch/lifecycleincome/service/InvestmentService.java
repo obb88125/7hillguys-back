@@ -173,6 +173,32 @@ public class InvestmentService {
 
         return refundRate;
     }
+
+    /**
+     * 투자액과 최대 투자 금액을 주면
+     * 환급 비율을 돌려줌
+     * @param investAmount,maxInvestment
+     * @return
+     */
+    public double checkRefundRate(Integer userId,Integer investAmount) {
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+
+        UserEntity user = userService.getUserById(Long.valueOf(userId));
+        // InvestmentEntity 생성 및 저장
+        // 연 수익률 계산
+        LocalDate endDate = calculateEndDate(user.getBirthdate());
+        // 연 수익률 계산
+        double annualizedReturnRate = calculateAnnualizedReturnRate(investment.getStartDate(), endDate, rateofreturn);
+
+        double presentValue = expectedValueService.calculatePresentValue(userId);
+        double refundRate = ((investAmount* (1+annualizedReturnRate)) / presentValue * 100);
+        refundRate = Math.round(refundRate * 1000) / 1000.0;
+
+        investment.setRefundRate(refundRate);
+        investmentRepository.save(investment);
+
+        return refundRate;
+    }
     // 연 수익률 계산 메서드
     private double calculateAnnualizedReturnRate(LocalDate startDate, LocalDate endDate, double rateOfReturn) {
         long months = ChronoUnit.MONTHS.between(startDate, endDate);
