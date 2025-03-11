@@ -14,21 +14,16 @@ public class InvestmentResultService {
     private final InvestmentRepository investmentRepository;
 
     @Transactional(readOnly = true)
-    public String getInvestmentStatus(Integer grantId) {
-        Optional<InvestmentEntity> investment = investmentRepository.findById(grantId);
+    public String getInvestmentStatus(Integer userId) {
+        Optional<InvestmentEntity> investment = investmentRepository.findByUserId(userId);
 
+        //투자 정보를 찾았는지 확인하는 로그 추가
         if (investment.isPresent()) {
-            switch (investment.get().getStatus()) {
-                case 승인:
-                    return "approved"; // 승인된 경우
-                case 거절:
-                    return "rejected"; // 거절된 경우
-                case 대기:
-                default:
-                    return "pending"; // 대기 중인 경우
-            }
+            System.out.println("[백엔드] 투자 정보 찾음: " + investment.get());
+            return investment.get().getStatus().name();
         } else {
-            throw new IllegalArgumentException("투자 정보를 찾을 수 없습니다.");
+            System.out.println("[백엔드] 투자 정보를 찾을 수 없음. userId: " + userId);
+            return "NOT_FOUND"; // 투자 정보 없음
         }
     }
 }
