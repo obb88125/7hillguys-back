@@ -1,6 +1,5 @@
 package com.shinhan.peoch.design.dto;
 
-import org.springframework.web.multipart.MultipartFile;
 import lombok.AllArgsConstructor;
 import lombok.*;
 
@@ -8,17 +7,19 @@ import lombok.*;
 @NoArgsConstructor 
 @AllArgsConstructor
 @Getter
-@Setter
-@ToString(exclude = "image")
+@Setter 
+@Data
 public class CardDesignDTO {
  
-    private int design_id;
+    private Integer layoutId;
+ 
     private String username;
-    private String layout_id; 
-
-    // 글자 색상: 0 (white), 1 (black)
-   
+ 
     private int letterColor;
-    private MultipartFile image;
-
+ 
+    private String cardBackColor;
+ 
+    private boolean logoGrayscale;
+     
+    private String bgImageUrl;
 }

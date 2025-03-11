@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.io.File;
 
 import com.shinhan.peoch.design.dto.CardDesignDTO;
 import com.shinhan.entity.CardDesignEntity;
@@ -30,24 +31,57 @@ public class CardDesignController {
 
     private final CardDesignService cardDesignService;
 
-    @PostMapping("/insert")
-    public ResponseEntity<String> createCardDesign(@RequestBody CardDesignDTO cardDesignDTO) {
-        CardDesignEntity entity;
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22" + cardDesignDTO.toString());
+@PostMapping("/insert")
+public ResponseEntity<String> createCardDesign(
+    @RequestPart("cardDesignDTO") CardDesignDTO cardDesignDTO,
+    @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        
+    // 사진 저장 /////////////////////////////////////////////////////
+    String imageUrl = null;
+    if (imageFile != null && !imageFile.isEmpty()) {
         try {
-            entity = CardDesignEntity.builder()
-                    .username(cardDesignDTO.getUsername())
-                    .layout_id(cardDesignDTO.getLayout_id())
-                    .letterColor(cardDesignDTO.getLetterColor())
-                    .image(cardDesignDTO.getImage().getBytes())
-                    .build();
-        } catch (IOException e) {
+             
+            // src/main/resources/design/image 폴더에 이미지 저장
+            String uploadDir = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "design" + File.separator + "image";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+        
+            String originalFilename = imageFile.getOriginalFilename();
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+           
+            String filename = cardDesignDTO.getUsername() + "_" + System.currentTimeMillis() + extension;
+            
+            File destFile = new File(dir, filename);
+            imageFile.transferTo(destFile);
+            
+            imageUrl = "image/" + filename;
+        } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>("카드 생성 실패", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("이미지 저장 실패", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        cardDesignService.registerCardDesign(entity);
-        return new ResponseEntity<>("카드 생성 완료", HttpStatus.CREATED);
     }
+    // 사진 저장 ///////////////////////////////////////////////////// 추후 이미지 호스팅 시작 후 삭제
+ 
+    CardDesignEntity entity; 
+    try {
+        entity = CardDesignEntity.builder()
+            .username(cardDesignDTO.getUsername())
+            .layoutId(cardDesignDTO.getLayoutId())
+            .letterColor(cardDesignDTO.getLetterColor()) 
+            .bgImageUrl(imageUrl != null ? imageUrl : cardDesignDTO.getBgImageUrl())
+            .cardBackColor(cardDesignDTO.getCardBackColor())
+            .logoGrayscale(cardDesignDTO.isLogoGrayscale())
+            .build();
+    
+    } catch (Exception e) {
+        e.printStackTrace();
+        return new ResponseEntity<>("카드 생성 실패", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    cardDesignService.registerCardDesign(entity);
+    return new ResponseEntity<>("카드 생성 완료", HttpStatus.CREATED);
+}
 
     @GetMapping("/")
     public ResponseEntity<List<CardDesignEntity>> getAllCardDesigns() {
