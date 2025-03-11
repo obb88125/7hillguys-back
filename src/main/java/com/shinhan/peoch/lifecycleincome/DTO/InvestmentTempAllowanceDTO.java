@@ -2,7 +2,9 @@ package com.shinhan.peoch.lifecycleincome.DTO;
 
 import com.shinhan.entity.ExpectedIncomeEntity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 /**
@@ -19,6 +21,8 @@ import java.util.List;
  */
 
 @Data
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class InvestmentTempAllowanceDTO {
      long availableAmount; // 현재 지원 가능 금액

@@ -19,8 +19,10 @@ public class InvestmentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userId; // Primary Key
+    private Integer grantId;
 
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(nullable = false, columnDefinition = "JSON")
     private String expectedIncome; // 예상 수익 (JSON 형식)
@@ -57,4 +59,5 @@ public class InvestmentEntity {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt; // 업데이트 시간 자동 기록
+
 }

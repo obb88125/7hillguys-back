@@ -2,8 +2,11 @@ package com.shinhan.peoch.lifecycleincome.controller;
 
 
 import com.shinhan.entity.InvestmentEntity;
+import com.shinhan.peoch.lifecycleincome.DTO.InvestmentRequestDTO;
 import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
+import com.shinhan.peoch.lifecycleincome.DTO.SetInvestAmountDTO;
 import com.shinhan.peoch.lifecycleincome.service.InvestmentService;
+import com.shinhan.peoch.lifecycleincome.service.SetInvestAmountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 public class InvestmentController {
 
     @Autowired
-    private InvestmentService investmentService;
+    InvestmentService investmentService;
+    @Autowired
+    SetInvestAmountService setInvestAmountService;
 
     @GetMapping("/investment/{userId}")
     public InvestmentEntity saveInvestment(@PathVariable Integer userId) {
@@ -24,8 +29,21 @@ public class InvestmentController {
         double refundRate = investmentService.updateRefundRate(userId);
         return ResponseEntity.ok(refundRate);
     }
+    @PostMapping("/investment/refund-rate")
+    public ResponseEntity<Double> expectedRefundRate(@RequestBody InvestmentRequestDTO requestDTO) {
+        double refundRate = investmentService.checkRefundRate(requestDTO.getUserId(), requestDTO.getInvestAmount());
+        System.out.println(refundRate);
+        return ResponseEntity.ok(refundRate);
+    }
+
     @GetMapping("/investment/tempallowance/{userId}")
     public InvestmentTempAllowanceDTO getInvestmentDetails(@PathVariable Integer userId) {
         return investmentService.calculateInvestmentDetails(userId);
+    }
+
+
+    @GetMapping("/investment/setamount/{userProfileId}")
+    public SetInvestAmountDTO getInvestmentData(@PathVariable Integer userProfileId) {
+        return setInvestAmountService.getInvestmentData(userProfileId);
     }
 }
