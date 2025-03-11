@@ -27,7 +27,7 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
 
-    private static final String[] USER_LIST = {"/api/review/**"};
+    private static final String[] USER_LIST = {"/api/review/**", "/api/investment/status", "/api/contract/**"};
     private static final String[] ADMIN_LIST ={};
     private static final String[] WHITE_LIST={
             "/api/auth/register", "/api/auth/login", "/api/review/save", "/api/review/file", "/api/auth/logout"
