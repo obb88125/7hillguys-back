@@ -19,10 +19,8 @@ public class InvestmentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer grantId; // Primary Key
+    private Integer userId; // Primary Key
 
-    @Column(nullable = false)
-    private Integer userId; // UserEntity와의 외래 키 관계
 
     @Column(nullable = false, columnDefinition = "JSON")
     private String expectedIncome; // 예상 수익 (JSON 형식)
@@ -43,7 +41,7 @@ public class InvestmentEntity {
 
     private Boolean isActive; // 활성화 여부
 
-    private Integer refundRate; // 환급 비율 (%)
+    private Double refundRate; // 환급 비율 (%)
 
     private Integer maxInvestment; // 최대 투자 금액
 

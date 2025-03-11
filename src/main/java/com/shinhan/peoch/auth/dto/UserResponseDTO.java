@@ -9,5 +9,4 @@ import lombok.Setter;
 @AllArgsConstructor @NoArgsConstructor
 public class UserResponseDTO {
     private Long userId;
-    private String name;
 }

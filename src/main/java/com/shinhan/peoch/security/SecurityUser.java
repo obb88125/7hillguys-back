@@ -10,9 +10,11 @@ import java.util.Collection;
 
 public class SecurityUser extends User {
     private static final String ROLE_PREFIX = "ROLE_";
+    private final UserEntity user;
 
     public SecurityUser(UserEntity user) {
         super(user.getEmail(), user.getPassword(), makeRole(user));
+        this.user = user;
     }
 
     private static Collection<? extends GrantedAuthority> makeRole(UserEntity user) {
@@ -21,7 +23,19 @@ public class SecurityUser extends User {
         return roleList;
     }
 
-    public SecurityUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
-        super(username, password, authorities);
+    public Long getUserId() {
+        return user.getUserId();
+    }
+
+    public String getEmail() {
+        return user.getEmail();
+    }
+
+    public String getRole() {
+        return user.getRole().name();
+    }
+
+    public UserEntity getUserEntity() {
+        return user;
     }
 }

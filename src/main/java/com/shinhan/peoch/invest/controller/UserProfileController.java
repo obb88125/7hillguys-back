@@ -2,37 +2,91 @@ package com.shinhan.peoch.invest.controller;
 
 import com.shinhan.entity.UserProfileEntity;
 import com.shinhan.peoch.invest.dto.UserProfileDTO;
+import com.shinhan.peoch.invest.dto.UserProfileFileDTO;
+import com.shinhan.peoch.invest.service.UserProfileFileService;
 import com.shinhan.peoch.invest.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/review")
 @RequiredArgsConstructor
 public class UserProfileController {
     private final UserProfileService userProfileService;
+    private final UserProfileFileService userProfileFileService;
 
     @PostMapping("/save")
     public ResponseEntity<UserProfileEntity> saveUserProfile(@RequestBody UserProfileDTO dto) {
+        log.info("받은 데이터: {}", dto);
         UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
         return ResponseEntity.ok(savedProfile);
     }
 
-//    @PostMapping("/file")
-//    public ResponseEntity<String> submitUserProfile(@ModelAttribute UserProfileDTO userProfileDTO) {
-//        try {
-//            // 로컬 서버 저장 방식
-//            String universityFilePath = userProfileService.saveFile(userProfileDTO.getUniversityCertificate());
-//            String familyFilePath = userProfileService.saveFile(userProfileDTO.getFamilyCertificate());
-//
-//            // S3 저장 방식 (사용할 경우)
-//            // String universityFilePath = userProfileService.uploadFileToS3(userProfileDTO.getUniversityCertificate());
-//            // String familyFilePath = userProfileService.uploadFileToS3(userProfileDTO.getFamilyCertificate());
-//
-//            return ResponseEntity.ok("파일 업로드 성공\n대학 증명서: " + universityFilePath + "\n가족 증명서: " + familyFilePath);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body("파일 업로드 실패: " + e.getMessage());
-//        }
-//    }
+    @PostMapping("/file")
+    public ResponseEntity<String> submitUserProfile(
+            @RequestParam(value = "universityCertificate", required = false) MultipartFile universityCertificate,
+            @RequestParam(value = "studentCardFile", required = false) MultipartFile studentCardFile,
+            @RequestParam(value = "certificationFiles", required = false) MultipartFile[] certificationFiles,
+            @RequestParam(value = "familyCertificate", required = false) MultipartFile familyCertificate,
+            @RequestParam(value = "criminalRecordFile", required = false) MultipartFile criminalRecordFile
+    ) {
+        try {
+            log.info("[submitUserProfile] 파일 업로드 요청 수신");
+
+            // 업로드된 파일 목록 확인
+            log.info("대학 증명서 파일: {}", (universityCertificate != null ? universityCertificate.getOriginalFilename() : "없음"));
+            log.info("학생증 파일: {}", (studentCardFile != null ? studentCardFile.getOriginalFilename() : "없음"));
+            log.info("가족 증명서 파일: {}", (familyCertificate != null ? familyCertificate.getOriginalFilename() : "없음"));
+            log.info("범죄 기록 파일: {}", (criminalRecordFile != null ? criminalRecordFile.getOriginalFilename() : "없음"));
+
+            // 자격증 파일 배열 로그 추가
+            if (certificationFiles != null && certificationFiles.length > 0) {
+                for (MultipartFile certFile : certificationFiles) {
+                    System.out.println("📂 자격증 파일: " + certFile.getOriginalFilename());
+                }
+            } else {
+                System.out.println("❌ 자격증 파일 없음");
+            }
+
+
+            // 파일 저장 경로 설정
+            String universityFilePath = (universityCertificate != null && !universityCertificate.isEmpty()) ?
+                    userProfileFileService.saveFile(universityCertificate, "university") : "파일 없음";
+            String studentCardFilePath = (studentCardFile != null && !studentCardFile.isEmpty()) ?
+                    userProfileFileService.saveFile(studentCardFile, "student_card") : "파일 없음";
+            String familyFilePath = (familyCertificate != null && !familyCertificate.isEmpty()) ?
+                    userProfileFileService.saveFile(familyCertificate, "family") : "파일 없음";
+            String criminalFilePath = (criminalRecordFile != null && !criminalRecordFile.isEmpty()) ?
+                    userProfileFileService.saveFile(criminalRecordFile, "criminal") : "파일 없음";
+
+            // 자격증 파일 저장
+            StringBuilder certPaths = new StringBuilder();
+            if (certificationFiles != null && certificationFiles.length > 0) {
+                log.info("자격증 파일 개수: {}", certificationFiles.length);
+                for (MultipartFile certFile : certificationFiles) {
+                    if (certFile != null && !certFile.isEmpty()) {
+                        String certPath = userProfileFileService.saveFile(certFile, "certificate");
+                        certPaths.append(certPath).append("\n");
+                        log.info("[submitUserProfile] 자격증 파일 저장 완료: {}", certPath);
+                    }
+                }
+            } else {
+                log.info("자격증 파일 없음.");
+            }
+
+            return ResponseEntity.ok("파일 업로드 성공\n"
+                    + "대학 증명서: " + universityFilePath + "\n"
+                    + "학생증: " + studentCardFilePath + "\n"
+                    + "가족 증명서: " + familyFilePath + "\n"
+                    + "범죄 기록: " + criminalFilePath + "\n"
+                    + "자격증:\n" + certPaths.toString());
+        } catch (Exception e) {
+            log.error("파일 업로드 중 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("파일 업로드 실패: " + e.getMessage());
+        }
+    }
 }

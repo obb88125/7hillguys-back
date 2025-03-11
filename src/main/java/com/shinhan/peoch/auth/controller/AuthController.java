@@ -3,6 +3,7 @@ package com.shinhan.peoch.auth.controller;
 import com.shinhan.peoch.auth.dto.UserResponseDTO;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
+import com.shinhan.peoch.security.SecurityUser;
 import com.shinhan.peoch.security.jwt.AuthService;
 import com.shinhan.peoch.security.jwt.JwtUtil;
 import com.shinhan.peoch.security.jwt.TokenBlacklistService;
@@ -18,6 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
     private final UserService userService;
     private final AuthService authService;
@@ -36,16 +38,21 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
-        if(token == null || !token.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().body("유효하지 않은 토큰입니다.");
         }
 
-        token = token.substring(7); //"Bearer " 제거
+        String token = authHeader.substring(7); // "Bearer " 제거
 
-        if(!jwtUtil.validationToken(token)) {
+        if (!jwtUtil.validationToken(token)) {
             return ResponseEntity.badRequest().body("유효하지 않은 토큰입니다.");
+        }
+
+        String email = jwtUtil.getUserEmail(token);
+        if (email == null) {
+            return ResponseEntity.badRequest().body("JWT에서 이메일을 추출할 수 없습니다.");
         }
 
         long expirationTime = jwtUtil.getExpirationTime(token);
@@ -55,8 +62,11 @@ public class AuthController {
     }
 
     @GetMapping("/user")
-    public UserResponseDTO getCurrentUser(@AuthenticationPrincipal UserEntity userEntity) {
-        return userService.getCurrentUser(userEntity);
+    public UserResponseDTO getCurrentUser(@AuthenticationPrincipal SecurityUser securityUser) {
+        if (securityUser == null) {
+            throw new RuntimeException("SecurityUser인증되지 않은 사용자입니다.");
+        }
+        return new UserResponseDTO(securityUser.getUserId());
     }
 
 }
