@@ -15,15 +15,16 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
+    // 결제 요청
     @PostMapping("/paymentRequest")
-    public PaymentResponse processPayment(@RequestBody PosRequest request) {
+    public PosResponse processPayment(@RequestBody PosPaymentRequest request) {
         return paymentService.processPayment(request);
     }
 
-//    // 포스기에서 전달받은 환불 요청
-//    @PostMapping("/refund")
-//    public RefundResponse processRefund(@RequestBody PosRequest request) {
-//        paymentService.processRefund(request);
-//    }
+    // 환불 요청
+    @PostMapping("/refundRequest")
+    public PosResponse processRefund(@RequestBody PosRefundRequest request) {
+        return paymentService.processRefund(request);
+    }
 
 }

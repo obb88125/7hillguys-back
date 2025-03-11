@@ -2,9 +2,7 @@ package com.shinhan.peoch.card;
 
 import com.shinhan.entity.*;
 import com.shinhan.peoch.auth.entity.UserEntity;
-import com.shinhan.peoch.payment.PaymentResponse;
 import com.shinhan.peoch.payment.PaymentService;
-import com.shinhan.peoch.payment.PosRequest;
 import com.shinhan.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
