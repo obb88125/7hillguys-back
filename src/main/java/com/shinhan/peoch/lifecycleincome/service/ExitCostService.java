@@ -1,11 +1,14 @@
 package com.shinhan.peoch.lifecycleincome.service;
 
 import com.shinhan.entity.InvestmentEntity;
+import com.shinhan.entity.PaymentEntity;
 import com.shinhan.peoch.lifecycleincome.DTO.ExitResponseDTO;
 import com.shinhan.repository.InvestmentRepository;
 import com.shinhan.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ExitCostService {
@@ -32,8 +35,18 @@ public class ExitCostService {
 
         return exitResponseDTO;
     }
-    public long calculateExitCost(Integer userId){
-        paymentRepository.sumDiscountAmountByUserId(userId);
+
+    /**
+     * 그냥 수익률 연산
+     * 전체 쓴돈을 년을 기준으로 현재까지 기간 만큼 1.15^n년 연산
+     *  사실 청구서가 있어야하는데???
+     *  내야 될 돈에서 낸 만큼을 제해야 exit비용인데
+     * @param userId
+     * @return long exitvalue
+     */
+    public long calculateExitCost(long userId){
+        List<PaymentEntity> paymentList = paymentRepository.findByCard_User_UserId(userId);
+
         return 0;
     }
 }
