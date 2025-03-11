@@ -1,0 +1,49 @@
+spring:
+ servlet:
+  ## 멀티파트 설정 (파일 업로드)
+  multipart:
+   enabled: true
+   max-file-size: 10MB # 파일 크기 제한
+   max-request-size: 10MB # 요청 크기 제한
+  encoding:
+   charset: UTF-8
+   enabled: true
+   force: true
+ ## JPA 설정
+jpa:
+  hibernate:
+   ddl-auto: update
+  generate-ddl: false
+  show-sql: true
+  properties:
+   hibernate:
+    format_sql: true
+    temp:
+     use_jdbc_metadata_defaults: false
+  database-platform: org.hibernate.dialect.MariaDBDialect
+ ## MariaDB 설정
+datasource:
+  driver-class-name: org.mariadb.jdbc.Driver
+  url: jdbc:mariadb://0.tcp.jp.ngrok.io:11531/peoch
+  username: root
+  password: 1313
+ application:
+  name: peoch
+ ## 캐시 설정 (Redis 사용)
+cache:
+  type: redis
+## Redis 사용
+data:
+  redis:
+   host: localhost
+   port: 6379
+ main:
+  allow-bean-definition-overriding: true # 추가된 설정
+## JWT 설정
+jwt:
+ secret: "63fba97a41e0d004e10e8dbbcb9a547819280efb00a54c732aca36a8a58258e4fcc539ffc5159a7f0a7be78b86efe001c12ba6af6debeb0a89e8ce7e82e75455"
+ expiration_time: 1800000 # 30분 (밀리초)
+## OCR 설정
+#ocr:
+# tesseract-path: "/usr/local/bin/tesseract" # 실제 Tesseract 실행 파일 경로
+# tessdata-path: "src/main/resources/tessdata" # kor.traineddata 파일 위치
