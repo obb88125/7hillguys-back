@@ -35,7 +35,7 @@ public class InvestmentEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private InvestmentStatus status; // 투자 상태 (ENUM: ACTIVE, INACTIVE 등)
+    private InvestmentStatus status; // 투자 심사 상태 (ENUM: 대기, 승인, 거절)
 
     private Long originalInvestValue; // 원금 투자 금액
 
