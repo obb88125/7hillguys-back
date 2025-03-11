@@ -24,6 +24,9 @@ repositories {
 }
 
 dependencies {
+    //itextpdf
+    implementation 'com.itextpdf:itext7-core:7.2.5'
+
     //JSON
     implementation("org.json:json:20230227") {
         exclude group: 'com.vaadin.external.google', module: 'android-json'

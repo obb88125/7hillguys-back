@@ -23,6 +23,7 @@ public class SecurityUser extends User {
         return roleList;
     }
 
+    //UserEntity의 정보를 직접 가져올 수 있도록 getter 추가
     public Long getUserId() {
         return user.getUserId();
     }
@@ -36,6 +37,6 @@ public class SecurityUser extends User {
     }
 
     public UserEntity getUserEntity() {
-        return user;
+        return user;  //UserEntity 자체를 가져올 수 있도록 추가
     }
 }
