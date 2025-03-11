@@ -24,7 +24,7 @@ public class ExitCostService {
     @Autowired
     PaymentRepository paymentRepository;
 
-    public ExitResponseDTO exitResponseService(Integer userId){
+    public ExitResponseDTO exitResponseService(long userId){
         InvestmentEntity firstExpectedIncomeEntity = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
         InvestmentEntity lastExpectedIncomeEntity = investmentRepository.findFirstByUserIdOrderByCreatedAtAsc(userId);
         ExitResponseDTO exitResponseDTO= ExitResponseDTO.builder()

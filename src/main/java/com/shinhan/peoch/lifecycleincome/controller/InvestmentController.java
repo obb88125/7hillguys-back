@@ -4,6 +4,7 @@ package com.shinhan.peoch.lifecycleincome.controller;
 import com.shinhan.entity.InvestmentEntity;
 import com.shinhan.peoch.lifecycleincome.DTO.ExitResponseDTO;
 import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
+import com.shinhan.peoch.lifecycleincome.service.ExitCostService;
 import com.shinhan.peoch.lifecycleincome.service.InvestmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class InvestmentController {
 
     @Autowired
-    private InvestmentService investmentService;
+    InvestmentService investmentService;
+
+    @Autowired
+    ExitCostService exitCostService;
 
     @GetMapping("/investment/{userId}")
     public InvestmentEntity saveInvestment(@PathVariable Integer userId) {
@@ -34,8 +38,8 @@ public class InvestmentController {
     }
     @GetMapping("/invest/exit/{userId}")
     public ResponseEntity<ExitResponseDTO> exitResponse(
-            @PathVariable Integer userId) {
-        ExitResponseDTO exitResponseDTO= null;
+            @PathVariable long userId) {
+        ExitResponseDTO exitResponseDTO= exitCostService.exitResponseService(userId);
         return ResponseEntity.ok(exitResponseDTO);
     }
 }
