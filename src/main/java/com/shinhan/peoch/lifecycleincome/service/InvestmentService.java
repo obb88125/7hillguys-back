@@ -24,18 +24,17 @@ import java.util.Optional;
 public class InvestmentService {
     private final double rateofreturn = 0.15;
     @Autowired
-    private ExpectedIncomeRepository expectedIncomeRepository;
-
+    ExpectedIncomeRepository expectedIncomeRepository;
     @Autowired
-    private InflationRateRepository inflationRateRepository;
+    InflationRateRepository inflationRateRepository;
     @Autowired
-    private ExpectedValueService expectedValueService;
+    ExpectedValueService expectedValueService;
     @Autowired
-    private InvestmentRepository investmentRepository;
+    InvestmentRepository investmentRepository;
     @Autowired
-    private UserService userService;
+    UserService userService;
     @Autowired
-    private ExpectedIncomeService expectedIncomeService;
+    ExpectedIncomeService expectedIncomeService;
     // 투자 정보 저장
     public InvestmentEntity saveInvestment(InvestmentEntity investment) {
         return investmentRepository.save(investment);
