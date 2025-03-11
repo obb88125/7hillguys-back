@@ -33,4 +33,5 @@ public class ExpectedValueController {
         List<ExpectedIncomeEntity> incomes = expectedIncomeService.getExpectedIncomesByUserProfileId(userProfileId);
         return ResponseEntity.ok(incomes);
     }
+
 }
