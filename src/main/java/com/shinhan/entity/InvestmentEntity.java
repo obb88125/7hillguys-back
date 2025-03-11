@@ -54,6 +54,12 @@ public class InvestmentEntity {
 
     private Integer tempAllowance; // 임시 수당
 
+    @Lob
+    private byte[] contractPdf; // 계약서 PDF (Binary)
+
+    @Lob
+    private String signature; // 전자서명 (Base64로 저장)
+
     @CreationTimestamp
     private LocalDateTime createdAt; // 생성 시간 자동 기록
 
