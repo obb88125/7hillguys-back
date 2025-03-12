@@ -30,6 +30,7 @@ public class InvestmentTempAllowanceDTO {
      double progress;      // 진행률
      double expectedIncome;  // 예상 수익
      double refundRate; // 반환 비율
+     String inflationRate;
 
 //     long allowance; //받기로 한 금액(임시 한도 있을시 임시한도로 설정)
 //     List<Long> finalamounts;// 월별 실제 사용한 금액

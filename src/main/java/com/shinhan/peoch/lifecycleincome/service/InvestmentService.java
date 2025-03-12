@@ -35,6 +35,7 @@ public class InvestmentService {
     UserService userService;
     @Autowired
     ExpectedIncomeService expectedIncomeService;
+
     // 투자 정보 저장
     public InvestmentEntity saveInvestment(InvestmentEntity investment) {
         return investmentRepository.save(investment);
@@ -246,10 +247,13 @@ public class InvestmentService {
         // 예상 생애 총소득 총액
         double expectedIncome = expectedValueService.calculatePresentValue(userId);
 
+        // 인플레이션
+        InflationRateEntity inflationRateEntity = inflationRateRepository.findByYear(LocalDate.now().getYear());
+        String inflationRate = inflationRateEntity.getInflationRate();
         double refundRate = updateRefundRate(userId);
         List<ExpectedIncomeEntity> incomes = expectedIncomeService.getExpectedIncomesByUserProfileId(investment.getUserId());
         // 결과 반환
-        return new InvestmentTempAllowanceDTO(availableAmount, investValue, progress, expectedIncome, refundRate, incomes);
+        return new InvestmentTempAllowanceDTO(availableAmount, investValue, progress, expectedIncome, refundRate, inflationRate,incomes);
     }
 
     private double calculateInvestmentProgress(LocalDate startDate, LocalDate endDate) {
