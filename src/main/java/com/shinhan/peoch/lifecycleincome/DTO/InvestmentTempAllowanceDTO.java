@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 /**
@@ -25,6 +26,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InvestmentTempAllowanceDTO {
+
+     @Autowired
+     ExpectedIncomeEntity expectedIncomeEntity;
+
      long availableAmount; // 현재 지원 가능 금액
      long investValue;     // 총 지원 금액
      double progress;      // 진행률
@@ -34,4 +39,5 @@ public class InvestmentTempAllowanceDTO {
 //     long allowance; //받기로 한 금액(임시 한도 있을시 임시한도로 설정)
 //     List<Long> finalamounts;// 월별 실제 사용한 금액
      List<ExpectedIncomeEntity> incomes;
+
 }
