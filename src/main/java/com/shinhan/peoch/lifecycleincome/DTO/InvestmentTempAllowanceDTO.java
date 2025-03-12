@@ -4,8 +4,6 @@ import com.shinhan.entity.ExpectedIncomeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 /**
@@ -23,12 +21,9 @@ import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class InvestmentTempAllowanceDTO {
 
-     @Autowired
-     ExpectedIncomeEntity expectedIncomeEntity;
 
      long availableAmount; // 현재 지원 가능 금액
      long investValue;     // 총 지원 금액
