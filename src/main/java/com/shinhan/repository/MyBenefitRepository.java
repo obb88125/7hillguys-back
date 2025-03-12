@@ -12,4 +12,8 @@ public interface MyBenefitRepository extends JpaRepository<MyBenefitEntity, MyBe
     // 사용자가 사용 중인 혜택 ID 목록 조회
     @Query("select mb.benefit.benefitId from MyBenefitEntity mb where mb.card.user.userId = :userId")
     List<Long> findBenefitIdsByUserId(@Param("userId") Long userId);
+
+    // BenefitEntity에 card 연관관계가 있고, CardEntity의 cardId를 기준으로 조회
+    List<MyBenefitEntity> findAppliedByCard_CardId(Long cardId);
+
 }
