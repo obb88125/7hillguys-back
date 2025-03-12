@@ -271,8 +271,8 @@ public class InvestmentService {
     private double calculateInvestmentProgress(LocalDate startDate, LocalDate endDate) {
         LocalDate today = LocalDate.now();
 
-        if (today.isBefore(startDate)) return 0.0; // 아직 시작 전
-        if (today.isAfter(endDate)) return 1.0; // 이미 종료됨
+        if (today.isBefore(startDate)) return 0.0; // 시작 전
+        if (today.isAfter(endDate)) return 1.0; //종료 이후
 
         // 총 기간 (개월 단위)
         long totalMonths = ChronoUnit.MONTHS.between(startDate, endDate) + 1; // 포함 관계를 위해 +1
@@ -283,10 +283,6 @@ public class InvestmentService {
     }
     private LocalDate calculateEndDate(LocalDate birthDate) {
         LocalDate sixtyFifthBirthday = birthDate.plusYears(65);
-        // 생일이 현재 날짜보다 이전인 경우 다음 해로 조정 (예: 2025-03-10 생일 → 2055-03-10)
-        if (sixtyFifthBirthday.isBefore(LocalDate.now())) {
-            sixtyFifthBirthday = sixtyFifthBirthday.plusYears(1);
-        }
         return sixtyFifthBirthday;
     }
     public ReallyExitResponseDTO getInvestmentExitInfo(Integer userId) {
@@ -302,6 +298,21 @@ public class InvestmentService {
             endDate = lastDayOfCurrentMonth;
         }
 
+        // 기간 계산 (연도 차이)
+        int startYear = startDate.getYear();
+        int endYear = endDate.getYear();
+        int yearDifference = endYear - startYear;
+
+        // DB에서 물가상승률 가져오기
+        InflationRateEntity inflationRateEntity = inflationRateRepository.findByYear(LocalDate.now().getYear());
+        Map<Integer, Double> inflationRates = parseJsonToMap(inflationRateEntity.getInflationRate());
+
+        // 연도별 적용할 물가상승률 구하기
+        double discountRate = getDiscountRate(yearDifference, inflationRates);
+
+        // 복리 계산용으로 연도별로 N승 해두기
+        double compoundInflationRate = Math.pow(1 + (discountRate / 100), yearDifference) - 1;
+
         List<Object[]> monthlyPayments = paymentRepository.findMonthlyPaymentsByUserIdAndDateBetweenAndStatus(
                 Long.valueOf(userId),
                 startDate.atStartOfDay(),
@@ -314,8 +325,8 @@ public class InvestmentService {
         long totalAmount = monthlyPaymentDTOS.stream()
                 .mapToLong(MonthlyPaymentDTO::getTotalAmount).sum();
 
-        double inflationRate = 0.05; // 예시 물가상승률 5%
-        long adjustedAmount = Math.round(totalAmount * (1 + inflationRate));
+        // 계산된 인플레이션과 기간이 적용된 물가상승률 적용
+        long adjustedAmount = Math.round(totalAmount * (1 + compoundInflationRate));
 
         return ReallyExitResponseDTO.builder()
                 .startDate(startDate.toString())
@@ -325,5 +336,7 @@ public class InvestmentService {
                 .adjustedAmount(adjustedAmount)
                 .build();
     }
+
+
 
 }
