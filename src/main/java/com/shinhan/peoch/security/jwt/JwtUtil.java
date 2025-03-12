@@ -60,20 +60,19 @@ public class JwtUtil {
     }
 
     public boolean validationToken(String token) {
-        return true;//나중에 제거해야해! 편의용
-//        try {
-//            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-//            return true;
-//        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-//            log.info("Invalid JWT Token", e);
-//        } catch (ExpiredJwtException e) {
-//            log.info("Expired JWT Token", e);
-//        } catch (UnsupportedJwtException e) {
-//            log.info("Unsupported JWT Token", e);
-//        } catch (IllegalArgumentException e) {
-//            log.info("JWT claims string is empty.", e);
-//        }
-//        return false;
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token", e);
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT Token", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT Token", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims string is empty.", e);
+        }
+        return false;
     }
 
     public Claims parseClaims(String accessToken) {
@@ -84,7 +83,7 @@ public class JwtUtil {
         }
     }
 
-    // JWT 남은 만료 시간(밀리초 단위) 계산
+    //JWT 남은 만료 시간 가져오는 메서드
     public long getExpirationTime(String token) {
         return parseClaims(token).getExpiration().getTime() - System.currentTimeMillis();
     }
