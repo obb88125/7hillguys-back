@@ -1,6 +1,7 @@
 package com.shinhan.peoch.lifecycleincome.service;
 
 import com.shinhan.entity.ExpectedIncomeEntity;
+import com.shinhan.entity.InvestmentEntity;
 import com.shinhan.entity.PaymentEntity;
 import com.shinhan.entity.UserProfileEntity;
 import com.shinhan.peoch.lifecycleincome.DTO.ExitResponseDTO;
@@ -38,6 +39,7 @@ public class ExitCostService {
         UserProfileEntity userProfile =  userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("사용자 프로필 정보를 찾을 수 없습니다."));
         Integer userProfileId =  userProfile.getUserProfileId();
+        InvestmentEntity investmentEntity = investmentService.findInvestmentByUserId(userId) .orElseThrow(() -> new RuntimeException("사용자 투자 정보를 찾을 수 없습니다."));
         ExpectedIncomeEntity firstExpectedIncomeEntity = expectedIncomeRepository.findFirstByUserProfileIdOrderByCreatedAtDesc(userProfileId);
         ExpectedIncomeEntity lastExpectedIncomeEntity = expectedIncomeRepository.findFirstByUserProfileIdOrderByCreatedAtAsc(userProfileId);
         ExitResponseDTO exitResponseDTO= ExitResponseDTO.builder()
@@ -46,6 +48,8 @@ public class ExitCostService {
                 .discountAmount(paymentRepository.sumDiscountAmountByUserId(userId).orElse(0L))
                 .investValue(paymentRepository.sumFinalAmountByUserId(userId).orElse(0L))
                 .exitCost(calculateExitCost(userId))
+                .StartDate(String.valueOf(investmentEntity.getStartDate()))
+                .EndDate(String.valueOf(investmentEntity.getEndDate()))
                 .build();
 
         return exitResponseDTO;

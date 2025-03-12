@@ -14,4 +14,6 @@ public interface InvestmentRepository extends JpaRepository<InvestmentEntity, In
     InvestmentEntity findFirstByUserIdOrderByUpdatedAtDesc(long userId);
     // CreatedAt 기준으로 가장 과거 1개 엔티티 조회
     InvestmentEntity findFirstByUserIdOrderByCreatedAtAsc(long userId);
+    //사용자 ID로 투자자 조회
+    InvestmentEntity findInvestmentByUserId(long userId);
 }

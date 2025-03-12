@@ -45,6 +45,12 @@ public class InvestmentService {
     public Optional<InvestmentEntity> findInvestmentById(Integer grantId) {
         return investmentRepository.findById(grantId);
     }
+    // 특정 투자 정보 조회 (userID로 조회)
+    public Optional<InvestmentEntity> findInvestmentByUserId(Integer userID) {
+        return Optional.ofNullable(investmentRepository.findInvestmentByUserId(userID));
+    }
+
+
 
     // 모든 투자 정보 조회
     public List<InvestmentEntity> findAllInvestments() {
