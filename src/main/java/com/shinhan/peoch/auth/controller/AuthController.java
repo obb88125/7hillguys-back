@@ -31,7 +31,7 @@ public class AuthController {
         return userService.register(user);
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody UserEntity user) {
         return authService.login(user);
     }
