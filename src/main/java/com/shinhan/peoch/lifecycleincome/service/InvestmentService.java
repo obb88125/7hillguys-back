@@ -2,13 +2,19 @@ package com.shinhan.peoch.lifecycleincome.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shinhan.entity.*;
+import com.shinhan.entity.ExpectedIncomeEntity;
+import com.shinhan.entity.InflationRateEntity;
+import com.shinhan.entity.InvestmentEntity;
+import com.shinhan.entity.InvestmentStatus;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
+import com.shinhan.peoch.lifecycleincome.DTO.MonthlyPaymentDTO;
+import com.shinhan.peoch.lifecycleincome.DTO.ReallyExitResponseDTO;
 import com.shinhan.repository.ExpectedIncomeRepository;
 import com.shinhan.repository.InflationRateRepository;
 import com.shinhan.repository.InvestmentRepository;
+import com.shinhan.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +42,8 @@ public class InvestmentService {
     UserService userService;
     @Autowired
     ExpectedIncomeService expectedIncomeService;
+    @Autowired
+    PaymentRepository paymentRepository;
 
     // 투자 정보 저장
     public InvestmentEntity saveInvestment(InvestmentEntity investment) {
@@ -282,6 +291,38 @@ public class InvestmentService {
             sixtyFifthBirthday = sixtyFifthBirthday.plusYears(1);
         }
         return sixtyFifthBirthday;
+    }
+    public ReallyExitResponseDTO getInvestmentExitInfo(Integer userId) {
+        InvestmentEntity investmentEntity = investmentRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("투자 정보를 찾을 수 없습니다."));
+
+        LocalDate startDate = investmentEntity.getStartDate();
+        LocalDate endDate = investmentEntity.getEndDate();
+        LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
+        if (endDate.isAfter(currentMonth)) {
+            endDate = currentMonth;
+        }
+
+        List<Object[]> monthlyPayments = paymentRepository.findMonthlyPayments(
+                Long.valueOf(userId), startDate.atStartOfDay(), endDate.plusMonths(1).atStartOfDay());
+
+        List<MonthlyPaymentDTO> monthlyPaymentDTOS = monthlyPayments.stream()
+                .map(obj -> new MonthlyPaymentDTO((String)obj[0], (Long)obj[1]))
+                .collect(Collectors.toList());
+
+        long totalAmount = monthlyPaymentDTOS.stream()
+                .mapToLong(MonthlyPaymentDTO::getTotalAmount).sum();
+
+        double inflationRate = 0.05; // 예시 물가상승률 5%
+        long adjustedAmount = Math.round(totalAmount * (1 + inflationRate));
+
+        return ReallyExitResponseDTO.builder()
+                .startDate(startDate.toString())
+                .endDate(endDate.toString())
+                .monthlyPayments(monthlyPaymentDTOS)
+                .totalAmount(totalAmount)
+                .adjustedAmount(adjustedAmount)
+                .build();
     }
 
 }
