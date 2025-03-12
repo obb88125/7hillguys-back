@@ -44,6 +44,7 @@ public class InvestmentController {
     }
     @GetMapping("/investment/reallyexit/{userId}")
     public ResponseEntity<ReallyExitResponseDTO> getInvestmentExitInfo(@PathVariable Integer userId) {
+        System.out.println(userId+"유저번호에요");
         ReallyExitResponseDTO response = investmentService.getInvestmentExitInfo(userId);
         System.out.println(response.toString());
         return ResponseEntity.ok(response);

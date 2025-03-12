@@ -2,10 +2,7 @@ package com.shinhan.peoch.lifecycleincome.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shinhan.entity.ExpectedIncomeEntity;
-import com.shinhan.entity.InflationRateEntity;
-import com.shinhan.entity.InvestmentEntity;
-import com.shinhan.entity.InvestmentStatus;
+import com.shinhan.entity.*;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
@@ -298,13 +295,17 @@ public class InvestmentService {
 
         LocalDate startDate = investmentEntity.getStartDate();
         LocalDate endDate = investmentEntity.getEndDate();
-        LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
-        if (endDate.isAfter(currentMonth)) {
-            endDate = currentMonth;
+        LocalDate currentMonth = LocalDate.now();
+        LocalDate lastDayOfCurrentMonth = currentMonth.withDayOfMonth(currentMonth.lengthOfMonth());
+
+        if (endDate.isAfter(lastDayOfCurrentMonth)) {
+            endDate = lastDayOfCurrentMonth;
         }
 
-        List<Object[]> monthlyPayments = paymentRepository.findMonthlyPayments(
-                Long.valueOf(userId), startDate.atStartOfDay(), endDate.plusMonths(1).atStartOfDay());
+        List<Object[]> monthlyPayments = paymentRepository.findMonthlyPaymentsByUserIdAndDateBetweenAndStatus(
+                Long.valueOf(userId),
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay().minusSeconds(1));
 
         List<MonthlyPaymentDTO> monthlyPaymentDTOS = monthlyPayments.stream()
                 .map(obj -> new MonthlyPaymentDTO((String)obj[0], (Long)obj[1]))
