@@ -15,12 +15,12 @@ public class CardPerformanceDTO {
     // 상점 이름
     private String storeName;
     // 총 할인 금액
-    private Long totalBenefitDiscount;
+    private Integer totalBenefitDiscount;
     // 결제액
-    private Long originalAmount;
+    private Integer originalAmount;
     // 할인된 결제액
-    private Long finalAmount;
+    private Integer finalAmount;
     // 할인 금액
-    private Long benefitDiscountAmount;
+    private Integer benefitDiscountAmount;
 
 }

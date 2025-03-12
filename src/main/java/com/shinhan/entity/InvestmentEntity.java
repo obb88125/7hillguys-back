@@ -19,8 +19,10 @@ public class InvestmentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userId; // Primary Key
+    private Integer grantId;
 
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(nullable = false, columnDefinition = "JSON")
     private String expectedIncome; // 예상 수익 (JSON 형식)
@@ -33,7 +35,7 @@ public class InvestmentEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private InvestmentStatus status; // 투자 상태 (ENUM: ACTIVE, INACTIVE 등)
+    private InvestmentStatus status; // 투자 심사 상태 (ENUM: 대기, 승인, 거절)
 
     private Long originalInvestValue; // 원금 투자 금액
 
@@ -52,9 +54,16 @@ public class InvestmentEntity {
 
     private Integer tempAllowance; // 임시 수당
 
+    @Lob
+    private byte[] contractPdf; // 계약서 PDF (Binary)
+
+    @Lob
+    private String signature; // 전자서명 (Base64로 저장)
+
     @CreationTimestamp
     private LocalDateTime createdAt; // 생성 시간 자동 기록
 
     @UpdateTimestamp
     private LocalDateTime updatedAt; // 업데이트 시간 자동 기록
+
 }
