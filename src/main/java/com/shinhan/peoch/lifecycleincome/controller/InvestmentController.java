@@ -36,9 +36,9 @@ public class InvestmentController {
     public InvestmentTempAllowanceDTO getInvestmentDetails(@PathVariable Integer userId) {
         return investmentService.calculateInvestmentDetails(userId);
     }
-    @GetMapping("/invest/exit/{userId}")
+    @GetMapping("/investment/exit/{userId}")
     public ResponseEntity<ExitResponseDTO> exitResponse(
-            @PathVariable long userId) {
+            @PathVariable Integer userId) {
         ExitResponseDTO exitResponseDTO= exitCostService.exitResponseService(userId);
         return ResponseEntity.ok(exitResponseDTO);
     }

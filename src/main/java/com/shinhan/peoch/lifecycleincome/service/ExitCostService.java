@@ -1,10 +1,13 @@
 package com.shinhan.peoch.lifecycleincome.service;
 
-import com.shinhan.entity.InvestmentEntity;
+import com.shinhan.entity.ExpectedIncomeEntity;
 import com.shinhan.entity.PaymentEntity;
+import com.shinhan.entity.UserProfileEntity;
 import com.shinhan.peoch.lifecycleincome.DTO.ExitResponseDTO;
+import com.shinhan.repository.ExpectedIncomeRepository;
 import com.shinhan.repository.InvestmentRepository;
 import com.shinhan.repository.PaymentRepository;
+import com.shinhan.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +26,25 @@ public class ExitCostService {
 
     @Autowired
     PaymentRepository paymentRepository;
+    @Autowired
+    ExpectedIncomeRepository expectedIncomeRepository;
 
-    public ExitResponseDTO exitResponseService(long userId){
-        InvestmentEntity firstExpectedIncomeEntity = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
-        InvestmentEntity lastExpectedIncomeEntity = investmentRepository.findFirstByUserIdOrderByCreatedAtAsc(userId);
+    @Autowired
+    UserProfileRepository userProfileRepository;
+
+
+    public ExitResponseDTO exitResponseService(Integer userId){
+        //optional로 예외 처리
+        UserProfileEntity userProfile =  userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 프로필 정보를 찾을 수 없습니다."));
+        Integer userProfileId =  userProfile.getUserProfileId();
+        ExpectedIncomeEntity firstExpectedIncomeEntity = expectedIncomeRepository.findFirstByUserProfileIdOrderByCreatedAtDesc(userProfileId);
+        ExpectedIncomeEntity lastExpectedIncomeEntity = expectedIncomeRepository.findFirstByUserProfileIdOrderByCreatedAtAsc(userProfileId);
         ExitResponseDTO exitResponseDTO= ExitResponseDTO.builder()
                 .firstExpectedIncome(firstExpectedIncomeEntity.getExpectedIncome())
                 .lastExpectedIncome(lastExpectedIncomeEntity.getExpectedIncome())
-                .discountAmount(paymentRepository.sumDiscountAmountByUserId(userId))
-                .investValue(paymentRepository.sumFinalAmountByUserId(userId))
+                .discountAmount(paymentRepository.sumDiscountAmountByUserId(userId).orElse(0L))
+                .investValue(paymentRepository.sumFinalAmountByUserId(userId).orElse(0L))
                 .exitCost(calculateExitCost(userId))
                 .build();
 

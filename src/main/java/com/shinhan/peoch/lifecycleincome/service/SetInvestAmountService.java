@@ -23,7 +23,7 @@ public class SetInvestAmountService {
         InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userProfileId);
 
         // 2. 예상 소득 데이터 조회
-        ExpectedIncomeEntity incomes = expectedIncomeRepository.findFirstByUserProfileIdOrderByUpdatedAtDesc(userProfileId);
+        ExpectedIncomeEntity incomes = expectedIncomeRepository.findFirstByUserProfileIdOrderByCreatedAtDesc(userProfileId);
 
 
         // 3. 물가상승률 데이터 조회 (2025년 고정)
