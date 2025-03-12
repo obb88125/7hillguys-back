@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Repository
 public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     // 특정 사용자, 특정 기간 결제 내역 조회
     List<PaymentEntity> findByCard_User_UserIdAndDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate);

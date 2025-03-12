@@ -59,9 +59,7 @@ public class CardService {
         // 결제일 내림차순(가장 최신 거래가 맨 앞)
         statementList.sort(Comparator.comparing(CardStatementDTO::getPaymentDate).reversed());
 
-
-        CardEntity card = cardRepository.findByUser_UserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 유저의 카드가 존재하지 않습니다. userId: " + userId));
+        CardEntity card = cardRepository.findByUser_UserId(userId);
         Integer monthlySpent = card.getMonthlySpent();
         Integer monthlyAllowance = card.getMonthlyAllowance();
 
@@ -108,7 +106,7 @@ public class CardService {
         dto.setStoreName(refund.getPayment().getStore().getName());
         dto.setInstallmentMonth(0);
         dto.setInstallmentRound(0);
-        dto.setBenefitDiscountAmount(0L);
+        dto.setBenefitDiscountAmount(0);
         return dto;
     }
 
@@ -124,7 +122,7 @@ public class CardService {
 
         List<PaymentEntity> payments = paymentRepository.findByCard_User_UserIdAndDateBetween(userId, startDate, endDate);
         List<CardPerformanceDTO> performanceList = new ArrayList<>();
-        long totalBenefitDiscount = 0;
+        int totalBenefitDiscount = 0;
         String userName = null;
 
         for (PaymentEntity p : payments) {

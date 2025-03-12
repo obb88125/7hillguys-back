@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Repository
 public interface RefundRepository extends JpaRepository<RefundEntity, Long> {
     List<RefundEntity> findByPayment_Card_User_UserIdAndDateBetween(Long userId, LocalDateTime start, LocalDateTime end);
 }
