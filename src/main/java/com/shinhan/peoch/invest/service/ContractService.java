@@ -46,7 +46,7 @@ public class ContractService {
             UserEntity user = userRepository.findById(Long.valueOf(userId))
                     .orElseThrow(() -> new RuntimeException("사용자 정보를 찾을 수 없습니다."));
 
-            UserProfileEntity userProfile = userProfileRepository.findByUserId(userId)
+            UserProfileEntity userProfile = userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
                     .orElseThrow(() -> new RuntimeException("사용자 프로필 정보를 찾을 수 없습니다."));
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
