@@ -2,7 +2,10 @@ package com.shinhan.peoch.lifecycleincome.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shinhan.entity.*;
+import com.shinhan.entity.ExpectedIncomeEntity;
+import com.shinhan.entity.InflationRateEntity;
+import com.shinhan.entity.InvestmentEntity;
+import com.shinhan.entity.InvestmentStatus;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
@@ -14,6 +17,7 @@ import com.shinhan.repository.InvestmentRepository;
 import com.shinhan.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -167,7 +171,8 @@ public class InvestmentService {
     }
 
     public double updateRefundRate(Integer userId) {
-        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 투자 정보를 찾을 수 없습니다."));;
 
         UserEntity user = userService.getUserById(Long.valueOf(userId));
         // InvestmentEntity 생성 및 저장
@@ -193,7 +198,8 @@ public class InvestmentService {
      * @return
      */
     public double checkRefundRate(Integer userId,Integer investAmount) {
-        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 투자 정보를 찾을 수 없습니다."));;
 
         UserEntity user = userService.getUserById(Long.valueOf(userId));
         // InvestmentEntity 생성 및 저장
@@ -227,7 +233,8 @@ public class InvestmentService {
      */
     public int calculateRefundAmount(Integer userId, int userMonthlyIncome) {
         // 투자 정보 가져오기
-        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 투자 정보를 찾을 수 없습니다."));
 
         // 환급 비율 가져오기
         double refundRate = investment.getRefundRate();
@@ -248,8 +255,11 @@ public class InvestmentService {
         LocalDate startDate = investment.getStartDate();
         LocalDate endDate = investment.getEndDate();
         long maxTotalInvestment = investment.getMaxInvestment();
-        long investValue = investment.getInvestValue();
+        // 원래는 이게 맞는 로직
+//        long investValue = investment.getInvestValue();
 
+        //투자한 돈의 총합 없을경우 0으로 리턴
+        long investValue = paymentRepository.sumFinalAmountByUserId(userId).orElse(0L);
         // 오늘 날짜 기준 진행률 계산
         double progress = calculateInvestmentProgress(startDate, endDate);
 
