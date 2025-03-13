@@ -2,13 +2,8 @@ package com.shinhan.repository;
 
 import com.shinhan.entity.PaymentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-<<<<<<< HEAD
-import org.springframework.data.jpa.repository.Modifying;
-=======
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
->>>>>>> 3763d7e632d7262cc8a353c6bd6af47c093ef7cb
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
