@@ -14,6 +14,7 @@ import com.shinhan.repository.InvestmentRepository;
 import com.shinhan.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -167,7 +168,8 @@ public class InvestmentService {
     }
 
     public double updateRefundRate(Integer userId) {
-        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 투자 정보를 찾을 수 없습니다."));;
 
         UserEntity user = userService.getUserById(Long.valueOf(userId));
         // InvestmentEntity 생성 및 저장
@@ -193,7 +195,8 @@ public class InvestmentService {
      * @return
      */
     public double checkRefundRate(Integer userId,Integer investAmount) {
-        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 투자 정보를 찾을 수 없습니다."));;
 
         UserEntity user = userService.getUserById(Long.valueOf(userId));
         // InvestmentEntity 생성 및 저장
@@ -227,7 +230,8 @@ public class InvestmentService {
      */
     public int calculateRefundAmount(Integer userId, int userMonthlyIncome) {
         // 투자 정보 가져오기
-        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 투자 정보를 찾을 수 없습니다."));
 
         // 환급 비율 가져오기
         double refundRate = investment.getRefundRate();
