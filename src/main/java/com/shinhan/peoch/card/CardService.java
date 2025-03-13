@@ -6,7 +6,9 @@ import com.shinhan.entity.RefundEntity;
 import com.shinhan.repository.CardRepository;
 import com.shinhan.repository.PaymentRepository;
 import com.shinhan.repository.RefundRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,8 +31,12 @@ public class CardService {
         this.refundRepository = refundRepository;
     }
 
+    @Autowired
+    private EntityManager entityManager;
+
     // 카드 명세서
     public CardStatementResponseDTO getCardStatement(Long userId, String yearMonth) {
+        entityManager.clear();
         // yearMonth = String("yyyy-MM"), yearMonth가 없으면 현재 연도/월을 사용
         YearMonth ym;
         if (yearMonth == null || yearMonth.isEmpty()) {
@@ -43,7 +49,6 @@ public class CardService {
         LocalDateTime endDate = ym.atEndOfMonth().atTime(23, 59, 59, 999999999);
 
         List<PaymentEntity> payments = paymentRepository.findByCard_User_UserIdAndDateBetween(userId, startDate, endDate);
-        List<RefundEntity> refunds = refundRepository.findByPayment_Card_User_UserIdAndDateBetween(userId, startDate, endDate);
         List<CardStatementDTO> statementList = new ArrayList<>();
 
         for (PaymentEntity payment : payments) {
@@ -51,17 +56,10 @@ public class CardService {
             statementList.add(dto);
         }
 
-        for (RefundEntity refund : refunds) {
-            CardStatementDTO dto = convertRefundToDTO(refund);
-            statementList.add(dto);
-        }
-
         // 결제일 내림차순(가장 최신 거래가 맨 앞)
         statementList.sort(Comparator.comparing(CardStatementDTO::getPaymentDate).reversed());
 
-
-        CardEntity card = cardRepository.findByUser_UserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 유저의 카드가 존재하지 않습니다. userId: " + userId));
+        CardEntity card = cardRepository.findByUser_UserId(userId);
         Integer monthlySpent = card.getMonthlySpent();
         Integer monthlyAllowance = card.getMonthlyAllowance();
 
@@ -69,7 +67,6 @@ public class CardService {
         response.setStatementList(statementList);
         response.setMonthlyAllowance(monthlyAllowance);
         response.setMonthlySpent(monthlySpent);
-
         return response;
     }
 
@@ -94,8 +91,13 @@ public class CardService {
                 dto.setInstallmentRound(0);
                 dto.setBenefitDiscountAmount(payment.getDiscountAmount());
                 break;
+            case REFUNDED:
+                dto.setPaymentStatus("REFUNDED");
+                dto.setInstallmentMonth(0);
+                dto.setInstallmentRound(0);
+                dto.setBenefitDiscountAmount(0);
+                break;
         }
-
         return dto;
     }
 
@@ -108,7 +110,7 @@ public class CardService {
         dto.setStoreName(refund.getPayment().getStore().getName());
         dto.setInstallmentMonth(0);
         dto.setInstallmentRound(0);
-        dto.setBenefitDiscountAmount(0L);
+        dto.setBenefitDiscountAmount(0);
         return dto;
     }
 
@@ -124,7 +126,7 @@ public class CardService {
 
         List<PaymentEntity> payments = paymentRepository.findByCard_User_UserIdAndDateBetween(userId, startDate, endDate);
         List<CardPerformanceDTO> performanceList = new ArrayList<>();
-        long totalBenefitDiscount = 0;
+        int totalBenefitDiscount = 0;
         String userName = null;
 
         for (PaymentEntity p : payments) {

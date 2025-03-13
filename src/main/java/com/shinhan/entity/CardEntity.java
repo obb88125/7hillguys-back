@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class CardEntity {
 
     @Id
@@ -33,10 +34,10 @@ public class CardEntity {
     private String cvc;
 
     @Column(length = 5)
-    private String issuedDate;
+    private String issuedDate; // MM/YY
 
     @Column(length = 5)
-    private String expirationDate;
+    private String expirationDate; // MM/YY
 
     @Enumerated(EnumType.STRING)
     private CardStatus status;
