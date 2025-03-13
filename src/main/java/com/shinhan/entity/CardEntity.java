@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "cards")
@@ -57,5 +58,8 @@ public class CardEntity {
     @OneToOne
     @JoinColumn(name = "userId")
     UserEntity user;
+
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CardDesignEntity> cardDesigns;
 
 }

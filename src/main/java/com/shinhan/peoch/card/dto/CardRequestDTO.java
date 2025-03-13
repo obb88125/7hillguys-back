@@ -1,5 +1,6 @@
 package com.shinhan.peoch.card.dto;
 
+import com.shinhan.peoch.design.dto.CardDesignDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,5 +9,4 @@ import lombok.Setter;
 public class CardRequestDTO {
     private String englishName;
     private String pin;
-    private String cardDesign;   // 카드 디자인 선택 (예: "PINK", "BLUE", "CHAMELEON")
 }

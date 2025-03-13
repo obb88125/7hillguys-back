@@ -31,7 +31,7 @@ public class MyBenefitEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @MapsId("benefitId")
     @JoinColumn(name = "benefit_id")
     BenefitEntity benefit;
