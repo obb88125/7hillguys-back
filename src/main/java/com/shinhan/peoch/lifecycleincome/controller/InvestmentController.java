@@ -133,9 +133,19 @@ public class InvestmentController {
         return ResponseEntity.ok(response);
     }
     @PostMapping("/investment/refund-rate")
-    public ResponseEntity<Double> expectedRefundRate(@RequestBody InvestmentRequestDTO requestDTO) {
+    public ResponseEntity<Double> expectedRefundRate(HttpServletRequest request,@RequestBody InvestmentRequestDTO requestDTO) {
+        String token = request.getHeader("Authorization");
+        String jwtToken = token.substring(7); // "Bearer " 제거
+        Claims claims;
+        try {
+            //JwtUtil 사용 claims 받아오기
+            claims = jwtUtil.parseClaims(jwtToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(null);
+        }
+        Integer userId = claims.get("userId", Integer.class);
+        requestDTO.setUserId(userId);
         double refundRate = investmentService.checkRefundRate(requestDTO.getUserId(), requestDTO.getInvestAmount());
-        System.out.println(refundRate);
         return ResponseEntity.ok(refundRate);
     }
 
