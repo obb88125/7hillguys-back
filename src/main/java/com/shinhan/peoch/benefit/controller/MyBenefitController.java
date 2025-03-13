@@ -4,20 +4,22 @@ package com.shinhan.peoch.benefit.controller;
 import com.shinhan.peoch.benefit.dto.BenefitApplyDTO;
 import com.shinhan.peoch.benefit.dto.BenefitResponseDTO;
 import com.shinhan.peoch.benefit.service.MyBenefitService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/benefits")
+@RequestMapping("/benefit")
 @RequiredArgsConstructor
+@Getter
 public class MyBenefitController {
 
     private final MyBenefitService myBenefitService;
 
     // 1. 내 카드에 적용된 혜택 및 사용 가능한 혜택 목록 가져오기
-    @GetMapping("/card/{cardId}")
-    public ResponseEntity<com.shinhan.peoch.benefit.dto.BenefitResponseDTO> getCardBenefits(@PathVariable Long cardId) {
+    @GetMapping("/card")
+    public ResponseEntity<BenefitResponseDTO> getCardBenefits() {
         // 예시: 토큰에서 사용자 ID 추출 (실제 구현은 JWT 라이브러리 등을 사용)
         // String token = authHeader.substring(7); // "Bearer " 제거
         // Long userId = tokenService.getUserIdFromToken(token);

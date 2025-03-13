@@ -27,8 +27,8 @@ public class MyBenefitService {
     @Transactional(readOnly = true)
     public BenefitResponseDTO getBenefitsByUserId(Long userId) {
         // 내 카드 정보를 사용자 ID로 조회 (CardEntity에 user 연관관계가 있다고 가정)
-        CardEntity card = cardRepository.findByUser_UserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("카드를 찾을 수 없습니다."));
+        CardEntity card = cardRepository.findByUser_UserId(userId);
+         //       .orElseThrow(() -> new IllegalArgumentException("카드를 찾을 수 없습니다."));
 
         // 카드에 적용된 혜택 조회 (BenefitEntity에 card 관계가 있고, 메서드 이름은 findAppliedByCard_CardId 사용)
         List<MyBenefitEntity> appliedBenefits = myBenefitRepository.findAppliedByCard_CardId(card.getCardId());
