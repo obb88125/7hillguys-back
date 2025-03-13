@@ -4,11 +4,13 @@ import com.shinhan.entity.PaymentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     // 특정 사용자, 특정 기간 결제 내역 조회
     List<PaymentEntity> findByCard_User_UserIdAndDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate);
@@ -28,19 +30,17 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     // 해당 userId 사용자의 모든 결제 내역 조회
     List<PaymentEntity> findByCard_User_UserId(Long userId);
 
-    @Query(value = "SELECT DATE_FORMAT(p.date, '%Y-%m') AS month, SUM(p.final_amount) AS total " +
-            "FROM payment_entity p " +
-            "WHERE p.card_id IN (SELECT c.card_id FROM cards c WHERE c.user_id = :userId) " +
+    @Query("SELECT FUNCTION('DATE_FORMAT', p.date, '%Y-%m') as month, SUM(p.finalAmount) as total " +
+            "FROM PaymentEntity p " +
+            "WHERE p.card.user.userId = :userId " +
             "AND p.date BETWEEN :startDate AND :endDate " +
             "AND p.status = 'PAID' " +
-            "GROUP BY month " +
-            "ORDER BY month ASC",
-            nativeQuery = true)
+            "GROUP BY FUNCTION('DATE_FORMAT', p.date, '%Y-%m') " +
+            "ORDER BY FUNCTION('DATE_FORMAT', p.date, '%Y-%m') ASC")
     List<Object[]> findMonthlyPaymentsByUserIdAndDateBetweenAndStatus(
             @Param("userId") Long userId,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
-
 
 
 
