@@ -1,18 +1,27 @@
 package com.shinhan.peoch.lifecycleincome.controller;
 
-
 import com.shinhan.entity.InvestmentEntity;
 import com.shinhan.peoch.lifecycleincome.DTO.*;
 import com.shinhan.peoch.lifecycleincome.service.ExitCostService;
 import com.shinhan.peoch.lifecycleincome.service.InvestmentService;
 import com.shinhan.peoch.lifecycleincome.service.SetInvestAmountService;
+import com.shinhan.peoch.security.jwt.JwtUtil;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
 public class InvestmentController {
+
+    @Autowired
+    JwtUtil jwtUtil;
+
+    @Value("${jwt.secret}")  // application.yml의 secret 가져오기
+    String secretKey;
 
     @Autowired
     InvestmentService investmentService;
@@ -47,11 +56,19 @@ public class InvestmentController {
         }
         return ResponseEntity.ok(exitResponseDTO);
     }
-    @GetMapping("/investment/reallyexit/{userId}")
-    public ResponseEntity<ReallyExitResponseDTO> getInvestmentExitInfo(@PathVariable Integer userId) {
-        System.out.println(userId+"유저번호에요");
+    @GetMapping("/investment/reallyexit")
+    public ResponseEntity<ReallyExitResponseDTO> getInvestmentExitInfo(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        String jwtToken = token.substring(7); // "Bearer " 제거
+        Claims claims;
+        try {
+            //JwtUtil 사용 claims 받아오기
+            claims = jwtUtil.parseClaims(jwtToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(null);
+        }
+        Integer userId = claims.get("userId", Integer.class);
         ReallyExitResponseDTO response = investmentService.getInvestmentExitInfo(userId);
-        System.out.println(response.toString());
         return ResponseEntity.ok(response);
     }
     @GetMapping("/investment/setamount/{userProfileId}")
