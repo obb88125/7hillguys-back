@@ -35,8 +35,9 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
             "WHERE p.card.user.userId = :userId " +
             "AND p.date BETWEEN :startDate AND :endDate " +
             "AND p.status = 'PAID' " +
-            "GROUP BY month " +
-            "ORDER BY month ASC")
+            "GROUP BY FUNCTION('DATE_FORMAT', p.date, '%Y-%m') " +
+            "ORDER BY FUNCTION('DATE_FORMAT', p.date, '%Y-%m') ASC")
+
     List<Object[]> findMonthlyPaymentsByUserIdAndDateBetweenAndStatus(
             @Param("userId") Long userId,
             @Param("startDate") LocalDateTime startDate,
