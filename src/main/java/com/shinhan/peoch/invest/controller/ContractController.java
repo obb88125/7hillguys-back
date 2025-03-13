@@ -23,7 +23,7 @@ public class ContractController {
     private final InvestmentRepository investmentRepository;
     private final ContractService contractService;
 
-    // 📌 1️⃣ 계약서 기본 형식 반환 (프론트엔드에서 계약서 미리보기)
+    // 1.계약서 기본 형식 반환 (프론트엔드에서 계약서 미리보기)
     @GetMapping("/template/{userId}")
     public ResponseEntity<Map<String, Object>> getContractTemplate(@PathVariable Integer userId) {
         Optional<InvestmentEntity> investmentOpt = investmentRepository.findById(userId);
@@ -47,7 +47,7 @@ public class ContractController {
                 investment.getMaxInvestment()));
 
         contractData.put("repaymentTerms", String.format(
-                "돈을 갚는 날은 %s부터 시작되며, 최소 상환 금액은 0 원이고, 최대 상환 금액은 0 원입니다.",
+                "돈을 갚는 날은 %s부터 시작되며, 55세까지 입니다. 최소 상환 금액은 0 원이고, 최대 상환 금액은 %d 원입니다.",
                 investment.getEndDate()));
 
         contractData.put("agreements", new String[]{
@@ -58,7 +58,7 @@ public class ContractController {
         return ResponseEntity.ok(contractData);
     }
 
-    // 📌 2️⃣ 계약서 서명 후 PDF 생성 및 저장
+    // 2.계약서 서명 후 PDF 생성 및 저장
     @PostMapping("/sign")
     public ResponseEntity<byte[]> signContract(@RequestBody SignDTO request) {
         try {
