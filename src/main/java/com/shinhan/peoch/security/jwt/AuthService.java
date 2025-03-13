@@ -21,11 +21,8 @@ public class AuthService {
     public ResponseEntity<Map<String, String>> login(UserEntity dto) {
         String email = dto.getEmail();
         String password = dto.getPassword();
-        UserEntity user = userRepository.findByEmail(email).orElse(null);
-
-        if(user == null) {
-            throw new UsernameNotFoundException("해당 이메일의 사용자가 존재하지 않습니다.");
-        }
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일의 사용자가 존재하지 않습니다."));
 
         //암호화된 password를 디코딩한 값과 입력한 패스워드 값이 다르면 null 반환
         if(!passwordEncoder.matches(password, user.getPassword())) {

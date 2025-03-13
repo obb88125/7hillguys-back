@@ -43,7 +43,7 @@ public class JwtUtil {
         ZonedDateTime tokenValidity = now.plusSeconds(expireTime);
 
         return Jwts.builder()
-                .setClaims(claims) //정보 저장
+                .setClaims(claims) //사용자 정보 저장
                 .setIssuedAt(Date.from(now.toInstant()))	//발급 시간
                 .setExpiration(Date.from(tokenValidity.toInstant())) // set 만료시간
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘과 signature 에 들어갈 secret값 세팅
@@ -53,29 +53,26 @@ public class JwtUtil {
     public String getUserEmail(String token) {
         Claims claims = parseClaims(token);
         String email = claims.get("userEmail", String.class);
-
         if (email == null) {
             log.error("JWT에서 userEmail을 추출할 수 없음! Claims: {}", claims);
         }
         return email;
-//        return parseClaims(token).get("userEmail", String.class);
     }
 
     public boolean validationToken(String token) {
-        return true;//나중에 제거해야해! 편의용
-//        try {
-//            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-//            return true;
-//        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-//            log.info("Invalid JWT Token", e);
-//        } catch (ExpiredJwtException e) {
-//            log.info("Expired JWT Token", e);
-//        } catch (UnsupportedJwtException e) {
-//            log.info("Unsupported JWT Token", e);
-//        } catch (IllegalArgumentException e) {
-//            log.info("JWT claims string is empty.", e);
-//        }
-//        return false;
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token", e);
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT Token", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT Token", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims string is empty.", e);
+        }
+        return false;
     }
 
     public Claims parseClaims(String accessToken) {

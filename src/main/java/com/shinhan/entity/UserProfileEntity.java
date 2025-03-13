@@ -1,5 +1,6 @@
 package com.shinhan.entity;
 
+import com.shinhan.peoch.invest.entity.UserProfileFileEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,11 +14,12 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user_profiles")
 public class UserProfileEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userProfileId;  //PK
 
-    @Column(nullable = false)
+    @Column(name = "user_id")
     private Integer userId;
 
     @Column(columnDefinition = "JSON")
@@ -50,4 +52,7 @@ public class UserProfileEntity {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @OneToOne(mappedBy = "userProfile", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserProfileFileEntity file;
 }

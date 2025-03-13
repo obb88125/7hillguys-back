@@ -2,7 +2,7 @@ package com.shinhan.peoch.invest.dto;
 
 import lombok.*;
 
-import java.util.List;
+import java.util.Map;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
@@ -11,7 +11,7 @@ public class UserProfileDTO {
     private Integer userId;
     private UniversityInfoDTO universityInfo;
     private studentCardDTO studentCard;
-    private List<String> certification;
+    private Map<String, String> certification;
     private FamilyStatusDTO familyStatus;
     private Long assets;
     private Boolean criminalRecord;

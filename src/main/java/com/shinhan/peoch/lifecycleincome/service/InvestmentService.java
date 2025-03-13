@@ -6,9 +6,12 @@ import com.shinhan.entity.*;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
+import com.shinhan.peoch.lifecycleincome.DTO.MonthlyPaymentDTO;
+import com.shinhan.peoch.lifecycleincome.DTO.ReallyExitResponseDTO;
 import com.shinhan.repository.ExpectedIncomeRepository;
 import com.shinhan.repository.InflationRateRepository;
 import com.shinhan.repository.InvestmentRepository;
+import com.shinhan.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,24 +21,27 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class InvestmentService {
     private final double rateofreturn = 0.15;
     @Autowired
-    private ExpectedIncomeRepository expectedIncomeRepository;
+    ExpectedIncomeRepository expectedIncomeRepository;
+    @Autowired
+    InflationRateRepository inflationRateRepository;
+    @Autowired
+    ExpectedValueService expectedValueService;
+    @Autowired
+    InvestmentRepository investmentRepository;
+    @Autowired
+    UserService userService;
+    @Autowired
+    ExpectedIncomeService expectedIncomeService;
+    @Autowired
+    PaymentRepository paymentRepository;
 
-    @Autowired
-    private InflationRateRepository inflationRateRepository;
-    @Autowired
-    private ExpectedValueService expectedValueService;
-    @Autowired
-    private InvestmentRepository investmentRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private ExpectedIncomeService expectedIncomeService;
     // 투자 정보 저장
     public InvestmentEntity saveInvestment(InvestmentEntity investment) {
         return investmentRepository.save(investment);
@@ -45,6 +51,12 @@ public class InvestmentService {
     public Optional<InvestmentEntity> findInvestmentById(Integer grantId) {
         return investmentRepository.findById(grantId);
     }
+    // 특정 투자 정보 조회 (userID로 조회)
+    public Optional<InvestmentEntity> findInvestmentByUserId(Integer userID) {
+        return Optional.ofNullable(investmentRepository.findInvestmentByUserId(userID));
+    }
+
+
 
     // 모든 투자 정보 조회
     public List<InvestmentEntity> findAllInvestments() {
@@ -105,14 +117,23 @@ public class InvestmentService {
         // 나이 가져와!
         UserEntity user = userService.getUserById(Long.valueOf(userId));
         // InvestmentEntity 생성 및 저장
+        // 연 수익률 계산
+        LocalDate endDate = calculateEndDate(user.getBirthdate());
+        // 3. 연 수익률 계산
+        double annualizedReturnRate = calculateAnnualizedReturnRate(
+                LocalDate.now(),  // 시작일: 현재 날짜
+                endDate,          // 종료일: 65세 생일
+                rateofreturn
+        );
+        // InvestmentEntity 생성 및 저장
         InvestmentEntity investment = InvestmentEntity.builder()
                 .userId(userId)
                 .expectedIncome(latestIncomeEntity.getExpectedIncome())
-                .status(InvestmentStatus.승인대기중) // 승인 대기중 상태
+                .status(InvestmentStatus.대기) // 승인 대기중 상태
                 .originalInvestValue(0L)
                 .monthlyAllowance(0)
                 .isActive(false)
-                .maxInvestment((int)((totalPresentValue)*(0.2)/(1+rateofreturn))) // 우리 수익률 10%를 잡고
+                .maxInvestment((int)((totalPresentValue)*(0.2)/(1+annualizedReturnRate))) // 연 수익률 적용
                 .investValue(0L)
                 .refundRate(0.0)
                 .tempAllowance(0)
@@ -146,17 +167,56 @@ public class InvestmentService {
     }
 
     public double updateRefundRate(Integer userId) {
-        InvestmentEntity investment = investmentRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Investment not found for user ID: " + userId));
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+
+        UserEntity user = userService.getUserById(Long.valueOf(userId));
+        // InvestmentEntity 생성 및 저장
+        // 연 수익률 계산
+        LocalDate endDate = calculateEndDate(user.getBirthdate());
+        // 연 수익률 계산
+        double annualizedReturnRate = calculateAnnualizedReturnRate(investment.getStartDate(), endDate, rateofreturn);
 
         double presentValue = expectedValueService.calculatePresentValue(userId);
-        double refundRate = ((investment.getOriginalInvestValue() * 1.15) / presentValue * 100);
+        double refundRate = ((investment.getOriginalInvestValue() * (1+annualizedReturnRate)) / presentValue * 100);
         refundRate = Math.round(refundRate * 1000) / 1000.0;
 
         investment.setRefundRate(refundRate);
         investmentRepository.save(investment);
 
         return refundRate;
+    }
+
+    /**
+     * 투자액과 최대 투자 금액을 주면
+     * 환급 비율을 돌려줌
+     * @param investAmount,maxInvestment
+     * @return
+     */
+    public double checkRefundRate(Integer userId,Integer investAmount) {
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
+
+        UserEntity user = userService.getUserById(Long.valueOf(userId));
+        // InvestmentEntity 생성 및 저장
+        // 연 수익률 계산
+        LocalDate endDate = calculateEndDate(user.getBirthdate());
+        // 연 수익률 계산
+        double annualizedReturnRate = calculateAnnualizedReturnRate(investment.getStartDate(), endDate, rateofreturn);
+
+        double presentValue = expectedValueService.calculatePresentValue(userId);
+        double refundRate = ((investAmount* (1+annualizedReturnRate)) / presentValue * 100);
+        refundRate = Math.round(refundRate * 1000) / 1000.0;
+
+        investment.setRefundRate(refundRate);
+        investmentRepository.save(investment);
+
+        return refundRate;
+    }
+    // 연 수익률 계산 메서드
+    private double calculateAnnualizedReturnRate(LocalDate startDate, LocalDate endDate, double rateOfReturn) {
+        long months = ChronoUnit.MONTHS.between(startDate, endDate);
+        if (months == 0) throw new IllegalArgumentException("투자 기간은 1개월 이상입니다.");
+        double years = (double) months / 12;
+        return Math.pow(1 + rateOfReturn, 1 / years) - 1;
     }
     /**
      * 사용자 월 소득과 환급 비율을 기반으로 계산된 환급 금액 반환
@@ -167,8 +227,7 @@ public class InvestmentService {
      */
     public int calculateRefundAmount(Integer userId, int userMonthlyIncome) {
         // 투자 정보 가져오기
-        InvestmentEntity investment = investmentRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 투자 정보를 찾을 수 없습니다. ID: " + userId));
+        InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId);
 
         // 환급 비율 가져오기
         double refundRate = investment.getRefundRate();
@@ -200,17 +259,20 @@ public class InvestmentService {
         // 예상 생애 총소득 총액
         double expectedIncome = expectedValueService.calculatePresentValue(userId);
 
+        // 인플레이션
+        InflationRateEntity inflationRateEntity = inflationRateRepository.findByYear(LocalDate.now().getYear());
+        String inflationRate = inflationRateEntity.getInflationRate();
         double refundRate = updateRefundRate(userId);
         List<ExpectedIncomeEntity> incomes = expectedIncomeService.getExpectedIncomesByUserProfileId(investment.getUserId());
         // 결과 반환
-        return new InvestmentTempAllowanceDTO(availableAmount, investValue, progress, expectedIncome, refundRate, incomes);
+        return new InvestmentTempAllowanceDTO(availableAmount, investValue, progress, expectedIncome, refundRate, inflationRate,incomes);
     }
 
     private double calculateInvestmentProgress(LocalDate startDate, LocalDate endDate) {
         LocalDate today = LocalDate.now();
 
-        if (today.isBefore(startDate)) return 0.0; // 아직 시작 전
-        if (today.isAfter(endDate)) return 1.0; // 이미 종료됨
+        if (today.isBefore(startDate)) return 0.0; // 시작 전
+        if (today.isAfter(endDate)) return 1.0; //종료 이후
 
         // 총 기간 (개월 단위)
         long totalMonths = ChronoUnit.MONTHS.between(startDate, endDate) + 1; // 포함 관계를 위해 +1
@@ -219,5 +281,62 @@ public class InvestmentService {
 
         return (double) elapsedMonths / totalMonths; // 진행률 (0~1)
     }
+    private LocalDate calculateEndDate(LocalDate birthDate) {
+        LocalDate sixtyFifthBirthday = birthDate.plusYears(65);
+        return sixtyFifthBirthday;
+    }
+    public ReallyExitResponseDTO getInvestmentExitInfo(Integer userId) {
+        InvestmentEntity investmentEntity = investmentRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("투자 정보를 찾을 수 없습니다."));
+
+        LocalDate startDate = investmentEntity.getStartDate();
+        LocalDate endDate = investmentEntity.getEndDate();
+        LocalDate currentMonth = LocalDate.now();
+        LocalDate lastDayOfCurrentMonth = currentMonth.withDayOfMonth(currentMonth.lengthOfMonth());
+
+        if (endDate.isAfter(lastDayOfCurrentMonth)) {
+            endDate = lastDayOfCurrentMonth;
+        }
+
+        // 기간 계산 (연도 차이)
+        int startYear = startDate.getYear();
+        int endYear = endDate.getYear();
+        int yearDifference = endYear - startYear;
+
+        // DB에서 물가상승률 가져오기
+        InflationRateEntity inflationRateEntity = inflationRateRepository.findByYear(LocalDate.now().getYear());
+        Map<Integer, Double> inflationRates = parseJsonToMap(inflationRateEntity.getInflationRate());
+
+        // 연도별 적용할 물가상승률 구하기
+        double discountRate = getDiscountRate(yearDifference, inflationRates);
+
+        // 복리 계산용으로 연도별로 N승 해두기
+        double compoundInflationRate = Math.pow(1 + (discountRate / 100), yearDifference) - 1;
+
+        List<Object[]> monthlyPayments = paymentRepository.findMonthlyPaymentsByUserIdAndDateBetweenAndStatus(
+                Long.valueOf(userId),
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay().minusSeconds(1));
+
+        List<MonthlyPaymentDTO> monthlyPaymentDTOS = monthlyPayments.stream()
+                .map(obj -> new MonthlyPaymentDTO((String)obj[0], (Long)obj[1]))
+                .collect(Collectors.toList());
+
+        long totalAmount = monthlyPaymentDTOS.stream()
+                .mapToLong(MonthlyPaymentDTO::getTotalAmount).sum();
+
+        // 계산된 인플레이션과 기간이 적용된 물가상승률 적용
+        long adjustedAmount = Math.round(totalAmount * (1 + compoundInflationRate));
+
+        return ReallyExitResponseDTO.builder()
+                .startDate(startDate.toString())
+                .endDate(endDate.toString())
+                .monthlyPayments(monthlyPaymentDTOS)
+                .totalAmount(totalAmount)
+                .adjustedAmount(adjustedAmount)
+                .build();
+    }
+
+
 
 }

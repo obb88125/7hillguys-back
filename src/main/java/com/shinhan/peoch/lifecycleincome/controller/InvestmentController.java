@@ -2,8 +2,10 @@ package com.shinhan.peoch.lifecycleincome.controller;
 
 
 import com.shinhan.entity.InvestmentEntity;
-import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
+import com.shinhan.peoch.lifecycleincome.DTO.*;
+import com.shinhan.peoch.lifecycleincome.service.ExitCostService;
 import com.shinhan.peoch.lifecycleincome.service.InvestmentService;
+import com.shinhan.peoch.lifecycleincome.service.SetInvestAmountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +15,13 @@ import org.springframework.web.bind.annotation.*;
 public class InvestmentController {
 
     @Autowired
-    private InvestmentService investmentService;
+    InvestmentService investmentService;
+
+    @Autowired
+    SetInvestAmountService setInvestAmountService;
+
+    @Autowired
+    ExitCostService exitCostService;
 
     @GetMapping("/investment/{userId}")
     public InvestmentEntity saveInvestment(@PathVariable Integer userId) {
@@ -27,5 +35,28 @@ public class InvestmentController {
     @GetMapping("/investment/tempallowance/{userId}")
     public InvestmentTempAllowanceDTO getInvestmentDetails(@PathVariable Integer userId) {
         return investmentService.calculateInvestmentDetails(userId);
+    }
+    @GetMapping("/investment/exit/{userId}")
+    public ResponseEntity<ExitResponseDTO> exitResponse(
+            @PathVariable Integer userId) {
+        ExitResponseDTO exitResponseDTO= exitCostService.exitResponseService(userId);
+        return ResponseEntity.ok(exitResponseDTO);
+    }
+    @GetMapping("/investment/reallyexit/{userId}")
+    public ResponseEntity<ReallyExitResponseDTO> getInvestmentExitInfo(@PathVariable Integer userId) {
+        System.out.println(userId+"유저번호에요");
+        ReallyExitResponseDTO response = investmentService.getInvestmentExitInfo(userId);
+        System.out.println(response.toString());
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/investment/setamount/{userProfileId}")
+    public SetInvestAmountDTO getInvestmentData(@PathVariable Integer userProfileId) {
+        return setInvestAmountService.getInvestmentData(userProfileId);
+    }
+    @PostMapping("/investment/refund-rate")
+    public ResponseEntity<Double> expectedRefundRate(@RequestBody InvestmentRequestDTO requestDTO) {
+        double refundRate = investmentService.checkRefundRate(requestDTO.getUserId(), requestDTO.getInvestAmount());
+        System.out.println(refundRate);
+        return ResponseEntity.ok(refundRate);
     }
 }
