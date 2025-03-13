@@ -126,7 +126,7 @@ public class InvestmentService {
         // 3. 연 수익률 계산
         double annualizedReturnRate = calculateAnnualizedReturnRate(
                 LocalDate.now(),  // 시작일: 현재 날짜
-                endDate,          // 종료일: 65세 생일
+                endDate,          // 종료일: 55세 생일
                 rateofreturn
         );
         // InvestmentEntity 생성 및 저장
@@ -292,7 +292,7 @@ public class InvestmentService {
         return (double) elapsedMonths / totalMonths; // 진행률 (0~1)
     }
     private LocalDate calculateEndDate(LocalDate birthDate) {
-        LocalDate sixtyFifthBirthday = birthDate.plusYears(65);
+        LocalDate sixtyFifthBirthday = birthDate.plusYears(55);
         return sixtyFifthBirthday;
     }
     public ReallyExitResponseDTO getInvestmentExitInfo(Integer userId) {
