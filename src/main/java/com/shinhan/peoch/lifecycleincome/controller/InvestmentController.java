@@ -39,7 +39,12 @@ public class InvestmentController {
     @GetMapping("/investment/exit/{userId}")
     public ResponseEntity<ExitResponseDTO> exitResponse(
             @PathVariable Integer userId) {
-        ExitResponseDTO exitResponseDTO= exitCostService.exitResponseService(userId);
+        ExitResponseDTO exitResponseDTO;
+        try {
+            exitResponseDTO = exitCostService.exitResponseService(userId);
+        } catch (Exception e) {
+            exitResponseDTO = ExitResponseDTO.builder().message("현재 예상 소득 산출중입니다. 3분 이내로 완료 됩니다.").build();
+        }
         return ResponseEntity.ok(exitResponseDTO);
     }
     @GetMapping("/investment/reallyexit/{userId}")

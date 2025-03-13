@@ -16,4 +16,5 @@ public class ExitResponseDTO {
      long exitCost; //계약 종료 비용
      String StartDate;//계약서 시작일
      String EndDate;//계약서 종료일
+     String message; //응답 메시지
 }
