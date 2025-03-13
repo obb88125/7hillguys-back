@@ -16,7 +16,8 @@ public class CardController {
 
     // 카드 명세서 조회
     @GetMapping("/statement/{userId}")
-    public CardStatementResponseDTO getCardStatement(@PathVariable Long userId, @RequestParam(required = false) String yearMonth) {
+    public CardStatementResponseDTO getCardStatement(@PathVariable("userId") Long userId, @RequestParam(required = false) String yearMonth) {
+        System.out.println("요청옴");
         return cardService.getCardStatement(userId, yearMonth);
     }
 

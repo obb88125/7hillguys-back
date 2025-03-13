@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     // 특정 사용자, 특정 기간 결제 내역 조회
     List<PaymentEntity> findByCard_User_UserIdAndDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate);
@@ -34,8 +35,8 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
             "WHERE p.card.user.userId = :userId " +
             "AND p.date BETWEEN :startDate AND :endDate " +
             "AND p.status = 'PAID' " +
-            "GROUP BY month " +
-            "ORDER BY month ASC")
+            "GROUP BY FUNCTION('DATE_FORMAT', p.date, '%Y-%m') " +
+            "ORDER BY FUNCTION('DATE_FORMAT', p.date, '%Y-%m') ASC")
     List<Object[]> findMonthlyPaymentsByUserIdAndDateBetweenAndStatus(
             @Param("userId") Long userId,
             @Param("startDate") LocalDateTime startDate,

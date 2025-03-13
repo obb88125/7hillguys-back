@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"benefit", "card"})
 public class MyBenefitEntity {
 
     @EmbeddedId
@@ -21,9 +22,8 @@ public class MyBenefitEntity {
 
     private Integer usedCount;
 
-    private LocalDateTime date;
-
-    private Boolean status;
+    @Enumerated(EnumType.STRING)
+    private MyBenefitStatus status;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -31,14 +31,14 @@ public class MyBenefitEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @MapsId("benefitId")
-    @JoinColumn(name = "benefitId")
+    @JoinColumn(name = "benefit_id")
     BenefitEntity benefit;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @MapsId("cardId")
-    @JoinColumn(name = "cardId")
+    @JoinColumn(name = "card_id")
     CardEntity card;
 
 }
