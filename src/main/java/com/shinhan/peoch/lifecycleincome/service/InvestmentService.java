@@ -2,7 +2,10 @@ package com.shinhan.peoch.lifecycleincome.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shinhan.entity.*;
+import com.shinhan.entity.ExpectedIncomeEntity;
+import com.shinhan.entity.InflationRateEntity;
+import com.shinhan.entity.InvestmentEntity;
+import com.shinhan.entity.InvestmentStatus;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
@@ -252,8 +255,11 @@ public class InvestmentService {
         LocalDate startDate = investment.getStartDate();
         LocalDate endDate = investment.getEndDate();
         long maxTotalInvestment = investment.getMaxInvestment();
-        long investValue = investment.getInvestValue();
+        // 원래는 이게 맞는 로직
+//        long investValue = investment.getInvestValue();
 
+        //투자한 돈의 총합 없을경우 0으로 리턴
+        long investValue = paymentRepository.sumFinalAmountByUserId(userId).orElse(0L);
         // 오늘 날짜 기준 진행률 계산
         double progress = calculateInvestmentProgress(startDate, endDate);
 
