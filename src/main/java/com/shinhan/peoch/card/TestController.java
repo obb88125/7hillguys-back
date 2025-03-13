@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 public class TestController {
     private final CardRepository cardRepository;
@@ -56,25 +58,27 @@ public class TestController {
     }
 
     @PostMapping("/myBenefitInsert")
-    public ResponseEntity<MyBenefitEntity> createMyBenefit(@RequestBody MyBenefitEntity myBenefit) {
+    public ResponseEntity<String> createMyBenefit(@RequestBody TestDTO request) {
+        MyBenefitId myBenefitId = MyBenefitId.builder()
+                .benefitId(request.getBenefitId())
+                .cardId(request.getCardId())
+                .build();
 
-        BenefitEntity benefit = benefitRepository.findById(myBenefit.getBenefit().getBenefitId())
-                .orElseThrow(() -> new EntityNotFoundException("Benefit not found"));
-        CardEntity card = cardRepository.findById(myBenefit.getCard().getCardId())
-                .orElseThrow(() -> new EntityNotFoundException("Card not found"));
+        BenefitEntity benefit = benefitRepository.findById(request.getBenefitId())
+                .orElseThrow(() -> new RuntimeException("Benefit not found with ID: " + request.getBenefitId()));
+        CardEntity card = cardRepository.findById(request.getCardId())
+                .orElseThrow(() -> new RuntimeException("Card not found with ID: " + request.getCardId()));
 
-        MyBenefitId myBenefitId = new MyBenefitId(benefit.getBenefitId(), card.getCardId());
-        myBenefit.setMyBenefitId(myBenefitId);
+        MyBenefitEntity myBenefit = MyBenefitEntity.builder()
+                .myBenefitId(myBenefitId)
+                .usedCount(request.getUsedCount())
+                .status(request.getStatus())
+                .benefit(benefit)
+                .card(card)
+                .build();
 
-        myBenefit.setBenefit(benefit);
-        myBenefit.setCard(card);
-
-        MyBenefitEntity savedMyBenefit = myBenefitRepository.save(myBenefit);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedMyBenefit);
+        myBenefitRepository.save(myBenefit);
+        return ResponseEntity.status(HttpStatus.CREATED).body("save OK");
     }
 
-//    @PostMapping("/paymentInsert")
-//    public PaymentResponse createPayment(@RequestBody PosRequest posRequest) {
-//        return PaymentResponse payment = paymentService.processPayment(posRequest);
-//    }
 }
