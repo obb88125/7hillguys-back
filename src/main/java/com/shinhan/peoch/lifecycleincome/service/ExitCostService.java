@@ -37,11 +37,13 @@ public class ExitCostService {
     public ExitResponseDTO exitResponseService(Integer userId){
         //optional로 예외 처리
 
-        UserProfileEntity userProfileEntityFirst =  userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
+        UserProfileEntity userProfileEntityLast =  userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
                 .orElseThrow(() -> new RuntimeException("사용자 프로필 정보를 찾을 수 없습니다."));
+
+        UserProfileEntity userProfileEntityFirst =  userProfileRepository.findFirstByUserIdOrderByUpdatedAtAsc(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 프로필 정보를 찾을 수 없습니다."));
+
         Integer userProfileIdFirst =  userProfileEntityFirst.getUserProfileId();
-        UserProfileEntity userProfileEntityLast =  userProfileRepository.findFirstByUserIdOrderByUpdatedAtAsc(userId)
-                .orElseThrow(() -> new RuntimeException("사용자 프로필 정보를 찾을 수 없습니다."));
         Integer userProfileIdLast=  userProfileEntityLast.getUserProfileId();
 
         InvestmentEntity investmentEntity = investmentService.findInvestmentByUserId(userId) .orElseThrow(() -> new RuntimeException("사용자 투자 정보를 찾을 수 없습니다."));
