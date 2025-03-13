@@ -4,7 +4,6 @@ import com.shinhan.entity.ExpectedIncomeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 /**
@@ -22,16 +21,19 @@ import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class InvestmentTempAllowanceDTO {
+
+
      long availableAmount; // 현재 지원 가능 금액
      long investValue;     // 총 지원 금액
      double progress;      // 진행률
      double expectedIncome;  // 예상 수익
      double refundRate; // 반환 비율
+     String inflationRate;
 
 //     long allowance; //받기로 한 금액(임시 한도 있을시 임시한도로 설정)
 //     List<Long> finalamounts;// 월별 실제 사용한 금액
      List<ExpectedIncomeEntity> incomes;
+
 }
