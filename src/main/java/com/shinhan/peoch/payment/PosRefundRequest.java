@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class PosRefundRequest {
-    private Long PaymentId;
+    private Long paymentId;
     private String cardNumber;
     private Long storeId;
 

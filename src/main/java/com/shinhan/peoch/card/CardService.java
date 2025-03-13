@@ -6,7 +6,9 @@ import com.shinhan.entity.RefundEntity;
 import com.shinhan.repository.CardRepository;
 import com.shinhan.repository.PaymentRepository;
 import com.shinhan.repository.RefundRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,8 +31,12 @@ public class CardService {
         this.refundRepository = refundRepository;
     }
 
+    @Autowired
+    private EntityManager entityManager;
+
     // 카드 명세서
     public CardStatementResponseDTO getCardStatement(Long userId, String yearMonth) {
+        entityManager.clear();
         // yearMonth = String("yyyy-MM"), yearMonth가 없으면 현재 연도/월을 사용
         YearMonth ym;
         if (yearMonth == null || yearMonth.isEmpty()) {
@@ -43,16 +49,10 @@ public class CardService {
         LocalDateTime endDate = ym.atEndOfMonth().atTime(23, 59, 59, 999999999);
 
         List<PaymentEntity> payments = paymentRepository.findByCard_User_UserIdAndDateBetween(userId, startDate, endDate);
-        List<RefundEntity> refunds = refundRepository.findByPayment_Card_User_UserIdAndDateBetween(userId, startDate, endDate);
         List<CardStatementDTO> statementList = new ArrayList<>();
 
         for (PaymentEntity payment : payments) {
             CardStatementDTO dto = convertToCardStatementDTO(payment);
-            statementList.add(dto);
-        }
-
-        for (RefundEntity refund : refunds) {
-            CardStatementDTO dto = convertRefundToDTO(refund);
             statementList.add(dto);
         }
 
@@ -67,7 +67,6 @@ public class CardService {
         response.setStatementList(statementList);
         response.setMonthlyAllowance(monthlyAllowance);
         response.setMonthlySpent(monthlySpent);
-
         return response;
     }
 
@@ -92,8 +91,13 @@ public class CardService {
                 dto.setInstallmentRound(0);
                 dto.setBenefitDiscountAmount(payment.getDiscountAmount());
                 break;
+            case REFUNDED:
+                dto.setPaymentStatus("REFUNDED");
+                dto.setInstallmentMonth(0);
+                dto.setInstallmentRound(0);
+                dto.setBenefitDiscountAmount(0);
+                break;
         }
-
         return dto;
     }
 

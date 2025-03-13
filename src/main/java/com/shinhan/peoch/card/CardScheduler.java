@@ -13,7 +13,7 @@ public class CardScheduler {
 
     @Scheduled(cron = "0 0 0 1 * ?") // 매월 1일 00:00:00 실행
     @Transactional
-    public void resetMonthlyCardData() {
+    public void callCardMonthlyProcedure() {
         try {
             entityManager.createNativeQuery("CALL card_monthly_procedure();").executeUpdate();
         } catch (Exception e) {

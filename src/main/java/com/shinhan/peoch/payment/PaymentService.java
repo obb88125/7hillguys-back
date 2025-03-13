@@ -162,13 +162,17 @@ public class PaymentService {
                         break;
                     }
 
-                    // 월 사용 횟수 검사
+                    // 혜택 사용 가능 여부 검사
                     Optional<MyBenefitEntity> myBenefitOpt = myBenefitRepository.findMyBenefitByCardNumberAndBenefitId(cardNumber, benefitId);
                     if (myBenefitOpt.isPresent()) {
                         MyBenefitEntity myBenefitEntity = myBenefitOpt.get();
 
+                        if (myBenefitEntity.getStatus() == MyBenefitStatus.WAITING) {
+                            continue;
+                        }
+
                         if (benefit.getUsageLimit() < myBenefitEntity.getUsedCount()) {
-                            break;
+                            continue;
                         } else {
                             myBenefitEntity.setUsedCount(myBenefitEntity.getUsedCount() + 1); // 사용 횟수 증가
                         }
@@ -228,9 +232,20 @@ public class PaymentService {
             return new PosResponse(false, "환불 가능한 결제가 아닙니다.", "REFUND_DECLINED");
         }
 
-        // 환불 처리: 결제 상태 변경 후 저장
-        payment.setStatus(PaymentStatus.REFUNDED);
-        paymentRepository.save(payment);
+        // 환불 내역 생성
+        PaymentEntity refundPayment = PaymentEntity.builder()
+                .originalAmount(payment.getOriginalAmount())
+                .discountAmount(payment.getDiscountAmount())
+                .finalAmount(payment.getFinalAmount())
+                .date(LocalDateTime.now())
+                .status(PaymentStatus.REFUNDED)
+                .installmentMonth(0)
+                .installmentRound(0)
+                .card(payment.getCard())
+                .store(payment.getStore())
+                .benefit(payment.getBenefit())
+                .build();
+        paymentRepository.save(refundPayment);
 
         RefundEntity refund = RefundEntity.builder()
                 .payment(payment)
