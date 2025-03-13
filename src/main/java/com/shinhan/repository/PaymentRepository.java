@@ -28,17 +28,19 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     // 해당 userId 사용자의 모든 결제 내역 조회
     List<PaymentEntity> findByCard_User_UserId(Long userId);
 
-    @Query("SELECT FUNCTION('DATE_FORMAT', p.date, '%Y-%m') as month, SUM(p.finalAmount) as total " +
-            "FROM PaymentEntity p " +
-            "WHERE p.card.user.userId = :userId " +
+    @Query(value = "SELECT DATE_FORMAT(p.date, '%Y-%m') AS month, SUM(p.final_amount) AS total " +
+            "FROM payment_entity p " +
+            "WHERE p.card_id IN (SELECT c.card_id FROM cards c WHERE c.user_id = :userId) " +
             "AND p.date BETWEEN :startDate AND :endDate " +
             "AND p.status = 'PAID' " +
             "GROUP BY month " +
-            "ORDER BY month ASC")
+            "ORDER BY month ASC",
+            nativeQuery = true)
     List<Object[]> findMonthlyPaymentsByUserIdAndDateBetweenAndStatus(
             @Param("userId") Long userId,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
 
 
 
