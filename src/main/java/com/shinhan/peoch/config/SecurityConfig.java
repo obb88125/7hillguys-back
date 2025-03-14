@@ -29,7 +29,7 @@ public class SecurityConfig {
     private static final String[] USER_LIST = {"/api/review/**", "/api/investment/status", "/api/contract/**","/api/investment/**"};
     private static final String[] ADMIN_LIST ={};
     private static final String[] WHITE_LIST={
-            "/api/auth/register", "/api/auth/login", "/api/review/save", "/api/review/file", "/api/auth/logout"
+           "/api/user/**", "/api/auth/register", "/api/auth/login", "/api/review/save", "/api/review/file", "/api/auth/logout"
     };
 
     @Bean
