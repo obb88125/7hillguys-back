@@ -46,6 +46,8 @@ public class InvestmentService {
     ExpectedIncomeService expectedIncomeService;
     @Autowired
     PaymentRepository paymentRepository;
+    @Autowired
+    ExitCostService exitCostService;
 
     // 투자 정보 저장
     public InvestmentEntity saveInvestment(InvestmentEntity investment) {
@@ -292,9 +294,9 @@ public class InvestmentService {
 
         return (double) elapsedMonths / totalMonths; // 진행률 (0~1)
     }
-    private LocalDate calculateEndDate(LocalDate birthDate) {
-        LocalDate sixtyFifthBirthday = birthDate.plusYears(55);
-        return sixtyFifthBirthday;
+    public LocalDate calculateEndDate(LocalDate birthDate) {
+        LocalDate FiftyFifty  = birthDate.plusYears(55);
+        return FiftyFifty;
     }
     public ReallyExitResponseDTO getInvestmentExitInfo(Integer userId) {
         InvestmentEntity investmentEntity = investmentRepository.findByUserId(userId)
@@ -368,6 +370,25 @@ public class InvestmentService {
         }
     }
 
+    public ApiResponseDTO<String> stopInvestment(Long userId) {
+        /**
+         *   기존 엑시트 비용함수랑 누적 환급 금액이 일치하거나 더 많으면 엑시트 비용은 그 시점에서
+         */
+
+        InvestmentEntity investment = investmentRepository.findInvestmentByUserId(userId);
+        long exitCost = exitCostService.calculateExitCost(userId);
+        if (exitCost>0){
+            return ApiResponseDTO.error("아직 남은 환급금이 존재합니다. ","exitcost가 0보다 큼");
+        }
+        else {
+            //isActive false
+            investment.setIsActive(false);
+            investmentRepository.save(investment);
+            return ApiResponseDTO.success("투자 계약 조기 해지 완료");
+        }
+
+
+    }
 
 
 
