@@ -179,6 +179,30 @@ public class InvestmentController {
             return ResponseEntity.badRequest().body(result);
         }
     }
+    @PostMapping("/investment/reallyexit")
+    public ResponseEntity<?> PostInvestmentReallyExit(
+            HttpServletRequest request) throws IOException {
+        //토큰 처리
+        String token = request.getHeader("Authorization");
+        String jwtToken = token.substring(7); // "Bearer " 제거
+        Claims claims;
+
+        try {
+            claims = jwtUtil.parseClaims(jwtToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(null);
+        }
+        Integer userId = claims.get("userId", Integer.class);
+        //로직 처리
+        //기존 엑시트 비용함수랑 누적 환급 금액이 일치하거나 더 많으면 해지 됨
+        ApiResponseDTO<String> result = investmentService.stopInvestment(Long.valueOf(userId));
+
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
+    }
 
 
 
