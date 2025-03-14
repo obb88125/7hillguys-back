@@ -96,7 +96,7 @@ public class PaymentService {
                 .build();
         paymentRepository.save(payment);
 
-        // 월 누적 사용금액 업데이트
+        // 월 사용금액 변경
         card.setMonthlySpent(card.getMonthlySpent() + finalAmount);
         cardRepository.save(card);
 
@@ -213,6 +213,7 @@ public class PaymentService {
         }
     }
 
+    /*----------------------------------------------------------------------------------------------------------------*/
     // 카드 환불 로직
     public PosResponse processRefund(PosRefundRequest request) {
         // 결제 조회
@@ -254,6 +255,11 @@ public class PaymentService {
                 .build();
 
         refundRepository.save(refund);
+
+        // 월 사용금액 변경
+        CardEntity card = payment.getCard();
+        card.setMonthlySpent(card.getMonthlySpent() - payment.getFinalAmount());
+        cardRepository.save(card);
 
         return new PosResponse(true, "환불이 완료되었습니다.", "REFUND_APPROVED");
     }

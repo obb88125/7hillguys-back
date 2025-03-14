@@ -1,8 +1,7 @@
 package com.shinhan.peoch.card;
 
-import lombok.AllArgsConstructor;
+import com.shinhan.entity.PaymentStatus;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +12,7 @@ public class CardStatementDTO {
     // 결제일
     private LocalDateTime paymentDate;
     // 결제 방법
-    private String paymentStatus;
+    private PaymentStatus paymentStatus;
     // 상점 이름
     private String storeName;
     // 할부
