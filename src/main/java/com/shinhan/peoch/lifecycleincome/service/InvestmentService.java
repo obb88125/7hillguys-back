@@ -8,10 +8,7 @@ import com.shinhan.entity.InvestmentEntity;
 import com.shinhan.entity.InvestmentStatus;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
-import com.shinhan.peoch.lifecycleincome.DTO.ApiResponseDTO;
-import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
-import com.shinhan.peoch.lifecycleincome.DTO.MonthlyPaymentDTO;
-import com.shinhan.peoch.lifecycleincome.DTO.ReallyExitResponseDTO;
+import com.shinhan.peoch.lifecycleincome.DTO.*;
 import com.shinhan.repository.ExpectedIncomeRepository;
 import com.shinhan.repository.InflationRateRepository;
 import com.shinhan.repository.InvestmentRepository;
@@ -46,8 +43,6 @@ public class InvestmentService {
     ExpectedIncomeService expectedIncomeService;
     @Autowired
     PaymentRepository paymentRepository;
-    @Autowired
-    ExitCostService exitCostService;
 
     // 투자 정보 저장
     public InvestmentEntity saveInvestment(InvestmentEntity investment) {
@@ -349,6 +344,40 @@ public class InvestmentService {
                 .adjustedAmount(adjustedAmount)
                 .build();
     }
+
+    /**
+     * investment 세팅
+     *
+     * @param userId
+     * @param setAmountRequestDTO
+     * @return 투자 설정 저장 결과를 담은 ApiResponseDTO 객체 (성공 시 성공 메시지, 실패 시 오류 메시지와 코드 포함)
+     */
+
+    public ApiResponseDTO<String> setInvestment(Long userId, SetAmountRequestDTO setAmountRequestDTO) {
+        try {
+            InvestmentEntity investment = investmentRepository.findInvestmentByUserId(userId);
+            investment.setRefundRate(0D);
+            investment.setMonthlyAllowance(setAmountRequestDTO.getMonthlyAmount());
+
+            // 시작일은 오늘
+            LocalDate startDate = LocalDate.now();
+            investment.setStartDate(startDate);
+
+            // 종료일은 오늘 + period년
+            LocalDate endDate = startDate.plusYears(setAmountRequestDTO.getPeriod());
+            investment.setEndDate(endDate);
+
+
+            investmentRepository.save(investment);
+
+            return ApiResponseDTO.success("투자 설정이 성공적으로 저장되었습니다.");
+        } catch (Exception e) {
+            return ApiResponseDTO.error("투자 설정 중 오류가 발생했습니다: " + e.getMessage(), "INVESTMENT_SETTING_ERROR");
+        }
+
+    }
+
+
     public ApiResponseDTO<String> setTempAllowance(Integer amount, Long userId) {
         try {
             InvestmentEntity investment = investmentRepository.findInvestmentByUserId(userId);
@@ -368,26 +397,6 @@ public class InvestmentService {
         } catch (Exception e) {
             return ApiResponseDTO.error("임시 한도 설정 중 오류가 발생했습니다: " + e.getMessage(), "INTERNAL_ERROR");
         }
-    }
-
-    public ApiResponseDTO<String> stopInvestment(Long userId) {
-        /**
-         *   기존 엑시트 비용함수랑 누적 환급 금액이 일치하거나 더 많으면 엑시트 비용은 그 시점에서
-         */
-
-        InvestmentEntity investment = investmentRepository.findInvestmentByUserId(userId);
-        long exitCost = exitCostService.calculateExitCost(userId);
-        if (exitCost>0){
-            return ApiResponseDTO.error("아직 남은 환급금이 존재합니다. ","exitcost가 0보다 큼");
-        }
-        else {
-            //isActive false
-            investment.setIsActive(false);
-            investmentRepository.save(investment);
-            return ApiResponseDTO.success("투자 계약 조기 해지 완료");
-        }
-
-
     }
 
 
