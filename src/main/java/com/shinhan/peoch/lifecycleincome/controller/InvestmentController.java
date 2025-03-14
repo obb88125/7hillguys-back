@@ -10,11 +10,16 @@ import com.shinhan.peoch.lifecycleincome.service.SetInvestAmountService;
 import com.shinhan.peoch.security.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.Map;
+
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class InvestmentController {
@@ -124,6 +129,7 @@ public class InvestmentController {
             //JwtUtil 사용 claims 받아오기
             claims = jwtUtil.parseClaims(jwtToken);
         } catch (Exception e) {
+            //에러 처리해야하는데...
             return ResponseEntity.status(401).body(null);
         }
         Integer userId = claims.get("userId", Integer.class);
@@ -148,5 +154,34 @@ public class InvestmentController {
         double refundRate = investmentService.checkRefundRate(requestDTO.getUserId(), requestDTO.getInvestAmount());
         return ResponseEntity.ok(refundRate);
     }
+
+    @PostMapping("/investment/applytempallowance")
+    public ResponseEntity<?> Postapplytempallowance(
+            HttpServletRequest request, @RequestBody Map<String, Integer> requestBody) throws IOException {
+        String token = request.getHeader("Authorization");
+        String jwtToken = token.substring(7); // "Bearer " 제거
+        Claims claims;
+
+        try {
+            claims = jwtUtil.parseClaims(jwtToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(null);
+        }
+        Integer userId = claims.get("userId", Integer.class);
+        //만원 단위로 사용
+        Integer amount = (requestBody.get("amount")/10000)* 10000;
+
+        ApiResponseDTO<String> result = investmentService.setTempAllowance(amount, Long.valueOf(userId));
+
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
+    }
+
+
+
+
 
 }
