@@ -6,6 +6,7 @@ import com.shinhan.peoch.benefit.dto.BenefitResponseDTO;
 import com.shinhan.peoch.benefit.service.MyBenefitService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/benefit")
 @RequiredArgsConstructor
 @Getter
+@Slf4j
 public class MyBenefitController {
 
     private final MyBenefitService myBenefitService;
@@ -29,18 +31,21 @@ public class MyBenefitController {
         BenefitResponseDTO response = myBenefitService.getBenefitsByUserId(userId);
         return ResponseEntity.ok(response);
     }
-
-    // 2. 적용된 혜택 삭제하기 (benefitId와 타입("applied")를 프론트에서 보내거나 경로 변수로)
     @DeleteMapping("/{benefitId}")
-    public ResponseEntity<String> deleteBenefit(@PathVariable Long benefitId) {
-        myBenefitService.deleteBenefit(benefitId);
-        return ResponseEntity.ok("혜택 삭제가 완료되었습니다.");
+    public ResponseEntity<?> deleteBenefit(
+            @PathVariable("benefitId") Long benefitId,
+            @RequestParam("cardId") Long cardId) {
+        myBenefitService.deleteBenefit(benefitId, cardId);
+        return ResponseEntity.ok().build();
     }
 
-    // 3. 결제 시 혜택 적용 (benefits를 카드에 병합)
+
     @PostMapping("/apply")
-    public ResponseEntity<String> applyBenefits(@RequestBody BenefitApplyDTO dto) {
-        myBenefitService.applyBenefits(dto);
-        return ResponseEntity.ok("혜택이 적용되었습니다.");
+    public ResponseEntity<String> applyBenefits(@RequestBody BenefitApplyDTO benefitApplyDTO) {
+
+        log.info("benefitApplyDTO: {}", benefitApplyDTO);
+
+        myBenefitService.applyBenefits(benefitApplyDTO);
+        return ResponseEntity.ok("혜택이 성공적으로 적용되었습니다.");
     }
 }

@@ -1,14 +1,13 @@
 package com.shinhan.peoch.benefit.service;
 
 
-import com.shinhan.entity.BenefitEntity;
-import com.shinhan.entity.CardEntity;
-import com.shinhan.entity.MyBenefitEntity;
+import com.shinhan.entity.*;
 import com.shinhan.peoch.benefit.dto.BenefitApplyDTO;
 import com.shinhan.peoch.benefit.dto.BenefitResponseDTO;
 import com.shinhan.repository.BenefitRepository;
 import com.shinhan.repository.CardRepository;
 import com.shinhan.repository.MyBenefitRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +21,7 @@ public class MyBenefitService {
     private final MyBenefitRepository myBenefitRepository;
     private final BenefitRepository benefitRepository;
     private final CardRepository cardRepository;
+    private final EntityManager entityManager;
 
     // 카드ID에 따라 혜택 데이터를 조회하는 예시 (실제 구현은 카드와 혜택의 관계에 따라 달라짐)
     @Transactional(readOnly = true)
@@ -37,16 +37,37 @@ public class MyBenefitService {
 
         return new BenefitResponseDTO(card, appliedBenefits, availableBenefits);
     }
-    // 적용된 혜택 삭제
-    @Transactional
-    public void deleteBenefit(Long benefitId) {
-        // benefitRepository.deleteById(benefitId) 등 실제 삭제 로직 실행
-        benefitRepository.deleteById(benefitId);
+    public void deleteBenefit(Long benefitId, Long cardId) {
+        // 수정: benefitId가 첫 번째, cardId가 두 번째
+        MyBenefitId id = new MyBenefitId(benefitId, cardId);
+        if (myBenefitRepository.existsById(id)) {
+            myBenefitRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("해당 카드에 적용된 혜택이 존재하지 않습니다.");
+        }
     }
 
     // 결제 시 혜택 적용 (임시 추가된 혜택을 카드에 병합하는 로직)
     @Transactional
     public void applyBenefits(BenefitApplyDTO dto) {
+        CardEntity cardProxy = entityManager.getReference(CardEntity.class, dto.getCardId());
+
+        // 혜택 ID 리스트를 순회하며 프록시 객체와 함께 MyBenefitEntity 생성
+        for (Long benefitId : dto.getBenefitIds()) {
+            // 혜택 프록시 객체 생성 (DB에 조회하지 않음)
+            BenefitEntity benefitProxy = entityManager.getReference(BenefitEntity.class, benefitId);
+
+            MyBenefitId myBenefitId = new MyBenefitId(dto.getCardId(), benefitId);
+            MyBenefitEntity myBenefitEntity = MyBenefitEntity.builder()
+                    .myBenefitId(myBenefitId)
+                    .usedCount(0)
+                    .status(MyBenefitStatus.ACTIVE) // 예시 상태
+                    .card(cardProxy)
+                    .benefit(benefitProxy)
+                    .build();
+            myBenefitRepository.save(myBenefitEntity);
+        }
+
         // benefitRepository.applyBenefits(dto.getCardId(), dto.getBenefitIds());
         // 실제 로직은 카드와 혜택 관계 테이블 업데이트 등으로 처리
     }

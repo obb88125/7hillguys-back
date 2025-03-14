@@ -31,12 +31,12 @@ public class MyBenefitEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @MapsId("benefitId")
     @JoinColumn(name = "benefit_id")
     BenefitEntity benefit;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("cardId")
     @JoinColumn(name = "card_id")
     CardEntity card;
