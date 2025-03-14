@@ -7,11 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -51,5 +49,30 @@ public class InvestmentResultController {
         String status = investmentResultService.getInvestmentStatus(userId);
         log.info("[백엔드] 투자 상태 반환: {}", status);
         return ResponseEntity.ok(status);
+    }
+
+    @PostMapping("/approve")
+    public ResponseEntity<?> approveInvestment(@CookieValue(name = "jwt", required = false) String jwtToken) {
+        log.info("[백엔드] 투자 승인 요청 수신: /api/investment/approve");
+
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            log.warn("[백엔드] JWT 쿠키가 없습니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT 쿠키가 없습니다.");
+        }
+
+        Long userId = jwtUtil.getUserId(jwtToken);
+        if (userId == null) {
+            log.warn("[백엔드] JWT에서 사용자 Id를 추출하지 못했습니다.");
+            return ResponseEntity.status(401).body("잘못된 토큰입니다.");
+        }
+
+        try {
+            investmentResultService.approveInvestmentByUser(userId);
+            log.info("[백엔드] 사용자({})의 투자 상태를 '승인'으로 업데이트 완료", userId);
+            return ResponseEntity.ok("투자가 승인되었습니다.");
+        } catch (Exception e) {
+            log.error("[백엔드] 투자 승인 처리 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.status(500).body("서버 오류로 승인 처리 실패.");
+        }
     }
 }
