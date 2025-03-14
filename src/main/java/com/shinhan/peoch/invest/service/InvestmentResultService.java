@@ -1,7 +1,9 @@
 package com.shinhan.peoch.invest.service;
 
 import com.shinhan.entity.InvestmentEntity;
+import com.shinhan.entity.InvestmentStatus;
 import com.shinhan.repository.InvestmentRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,5 +27,23 @@ public class InvestmentResultService {
             System.out.println("[백엔드] 투자 정보를 찾을 수 없음. userId: " + userId);
             return "NOT_FOUND"; // 투자 정보 없음
         }
+    }
+
+
+    @Transactional
+    public void approveInvestmentByUser(Long userId) {
+        InvestmentEntity investment = investmentRepository.findByUserId(userId.intValue())
+                .orElseThrow(() -> new EntityNotFoundException("투자 정보를 찾을 수 없습니다."));
+
+        investment.setStatus(InvestmentStatus.승인);
+        investmentRepository.save(investment);
+    }
+
+    public void rejectInvestmentByUser(Long userId) {
+        InvestmentEntity investment = investmentRepository.findByUserId(userId.intValue())
+                .orElseThrow(() -> new EntityNotFoundException("투자 정보를 찾을 수 없습니다."));
+
+        investment.setStatus(InvestmentStatus.거절);
+        investmentRepository.save(investment);
     }
 }
