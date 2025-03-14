@@ -8,6 +8,7 @@ import com.shinhan.entity.InvestmentEntity;
 import com.shinhan.entity.InvestmentStatus;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
+import com.shinhan.peoch.lifecycleincome.DTO.ApiResponseDTO;
 import com.shinhan.peoch.lifecycleincome.DTO.InvestmentTempAllowanceDTO;
 import com.shinhan.peoch.lifecycleincome.DTO.MonthlyPaymentDTO;
 import com.shinhan.peoch.lifecycleincome.DTO.ReallyExitResponseDTO;
@@ -346,6 +347,27 @@ public class InvestmentService {
                 .adjustedAmount(adjustedAmount)
                 .build();
     }
+    public ApiResponseDTO<String> setTempAllowance(Integer amount, Long userId) {
+        try {
+            InvestmentEntity investment = investmentRepository.findInvestmentByUserId(userId);
+
+            if (investment == null) {
+                return ApiResponseDTO.error("사용자의 투자 정보를 찾을 수 없습니다", "USER_NOT_FOUND");
+            }
+
+            if (investment.getMaxInvestment() < amount) {
+                return ApiResponseDTO.error("요청한 임시 한도가 최대 투자 한도를 초과합니다", "EXCEED_MAX_INVESTMENT");
+            }
+
+            investment.setTempAllowance(amount);
+            investmentRepository.save(investment);
+
+            return ApiResponseDTO.success("임시 한도 설정 완료");
+        } catch (Exception e) {
+            return ApiResponseDTO.error("임시 한도 설정 중 오류가 발생했습니다: " + e.getMessage(), "INTERNAL_ERROR");
+        }
+    }
+
 
 
 
