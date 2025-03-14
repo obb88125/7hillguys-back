@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+import java.util.List;
 @Repository
 public interface UserProfileRepository extends JpaRepository<UserProfileEntity, Integer> {
     Optional<UserProfileEntity> findByUserId(Integer userId);
@@ -15,4 +16,5 @@ public interface UserProfileRepository extends JpaRepository<UserProfileEntity, 
     Optional<UserProfileEntity> findFirstByUserIdOrderByUpdatedAtAsc(Integer userId);
     Optional<UserProfileEntity> findByUserProfileId(Integer userProfileId);
 
+    List<UserProfileEntity> findByUserIdInAndGender(List<Long> userIds, Boolean gender);
 }
