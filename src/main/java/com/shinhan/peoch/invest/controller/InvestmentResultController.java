@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,22 +21,18 @@ public class InvestmentResultController {
     private final InvestmentResultService investmentResultService;
     private final JwtUtil jwtUtil;
 
-    @Value("${jwt.secret}")  // application.yml의 secret 가져오기
-    private String secretKey;
-
-    @GetMapping("/status")  //API 매핑 확인
-    public ResponseEntity<String> checkInvestmentStatus(HttpServletRequest request) {
+    @GetMapping("/status")
+    public ResponseEntity<String> checkInvestmentStatus(@CookieValue(value = "jwt", required = false) String jwtToken) {
         log.info("🔍 [백엔드] API 요청 수신: /api/investment/status");
 
-        String token = request.getHeader("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body("토큰이 없습니다.");
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            log.warn("[백엔드] JWT 쿠키가 없습니다.");
+            return ResponseEntity.status(401).body("토큰이 없습니다.");
         }
 
-        String jwtToken = token.substring(7); // "Bearer " 제거
         Claims claims;
         try {
-            //JwtUtil 활용하여 검증 및 Claims 추출
+            // JWT 검증 및 Claims 추출
             claims = jwtUtil.parseClaims(jwtToken);
             log.info("[백엔드] 토큰 검증 성공");
         } catch (Exception e) {
@@ -44,9 +41,15 @@ public class InvestmentResultController {
         }
 
         Integer userId = claims.get("userId", Integer.class);
-        log.info("[백엔드] userId: " + userId);
+        log.info("[백엔드] 추출된 userId: {}", userId);
+
+        if (userId == null) {
+            log.warn("[백엔드] JWT에서 userId 추출 실패!");
+            return ResponseEntity.status(401).body("JWT에서 userId를 찾을 수 없습니다.");
+        }
+
         String status = investmentResultService.getInvestmentStatus(userId);
-        log.info("[백엔드] 투자 상태 반환: " + status);
+        log.info("[백엔드] 투자 상태 반환: {}", status);
         return ResponseEntity.ok(status);
     }
 }
