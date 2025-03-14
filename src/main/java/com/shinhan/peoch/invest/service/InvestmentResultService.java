@@ -38,4 +38,12 @@ public class InvestmentResultService {
         investment.setStatus(InvestmentStatus.승인);
         investmentRepository.save(investment);
     }
+
+    public void rejectInvestmentByUser(Long userId) {
+        InvestmentEntity investment = investmentRepository.findByUserId(userId.intValue())
+                .orElseThrow(() -> new EntityNotFoundException("투자 정보를 찾을 수 없습니다."));
+
+        investment.setStatus(InvestmentStatus.거절);
+        investmentRepository.save(investment);
+    }
 }
