@@ -75,4 +75,29 @@ public class InvestmentResultController {
             return ResponseEntity.status(500).body("서버 오류로 승인 처리 실패.");
         }
     }
+
+    @PostMapping("/reject")
+    public ResponseEntity<?> rejectInvestment(@CookieValue(name = "jwt", required = false) String jwtToken) {
+        log.info("[백엔드] 투자 거절 요청 수신: /api/investment/reject");
+
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            log.warn("[백엔드] JWT 쿠키가 없습니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT 쿠키가 없습니다.");
+        }
+
+        Long userId = jwtUtil.getUserId(jwtToken);
+        if (userId == null) {
+            log.warn("[백엔드] JWT에서 사용자 Id를 추출하지 못했습니다.");
+            return ResponseEntity.status(401).body("잘못된 토큰입니다.");
+        }
+
+        try {
+            investmentResultService.rejectInvestmentByUser(userId);
+            log.info("[백엔드] 사용자({})의 투자 상태를 '거절'으로 업데이트 완료", userId);
+            return ResponseEntity.ok("투자가 거절되었습니다.");
+        } catch (Exception e) {
+            log.error("[백엔드] 투자 승인 처리 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.status(500).body("서버 오류로 승인 처리 실패.");
+        }
+    }
 }
