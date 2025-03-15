@@ -38,8 +38,13 @@ public class CardService {
 
         List<PaymentEntity> payments = paymentRepository.findByCard_User_UserIdAndDateBetween(userId, startDate, endDate);
         List<CardStatementDTO> statementList = new ArrayList<>();
+        int monthlySpent = 0;
 
         for (PaymentEntity payment : payments) {
+            if (payment.getStatus() == PaymentStatus.PAID) {
+                monthlySpent += payment.getFinalAmount();
+            }
+
             CardStatementDTO dto = convertToCardStatementDTO(payment);
             statementList.add(dto);
         }
@@ -48,7 +53,6 @@ public class CardService {
         statementList.sort(Comparator.comparing(CardStatementDTO::getPaymentDate).reversed());
 
         CardEntity card = cardRepository.findByUser_UserId(userId);
-        Integer monthlySpent = card.getMonthlySpent();
         Integer monthlyAllowance = card.getMonthlyAllowance();
 
         CardStatementResponseDTO response = new CardStatementResponseDTO();
