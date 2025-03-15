@@ -1,4 +1,4 @@
-package com.shinhan.peoch.benefit;
+package com.shinhan.peoch.card;
 
 import com.shinhan.entity.BenefitEntity;
 import lombok.Data;
