@@ -76,24 +76,34 @@ public class SetInvestAmountService {
     }
     public ApiResponseDTO<String> setInvestment(Long userId, SetAmountRequestDTO setAmountRequestDTO) {
         try {
+            // 사용자의 투자 정보를 조회
             InvestmentEntity investment = investmentRepository.findInvestmentByUserId(userId);
+            if (investment == null) {
+                return ApiResponseDTO.error("투자 정보를 찾을 수 없습니다.", "INVESTMENT_NOT_FOUND");
+            }
+
+            // 투자 정보 설정
             investment.setRefundRate(0D);
             investment.setMonthlyAllowance(setAmountRequestDTO.getMonthlyAmount());
 
-            // 시작일은 오늘
+            // 오늘 기준 설정
             LocalDate startDate = LocalDate.now();
             investment.setStartDate(startDate);
 
-            // 종료일은 오늘 + period년
+            // 종료일은 오늘부터 입력한 년수 만큼
             LocalDate endDate = startDate.plusYears(setAmountRequestDTO.getPeriod());
             investment.setEndDate(endDate);
 
+            // DB에 저장
             investmentRepository.save(investment);
 
-            return new ApiResponseDTO<>(true, "투자 설정이 성공적으로 저장되었습니다.", null);
+            return ApiResponseDTO.success("투자 설정이 성공적으로 저장되었습니다.");
         } catch (Exception e) {
-            return new ApiResponseDTO<>(false, "투자 설정 중 오류가 발생했습니다: " + e.getMessage(), null);
+            // 예외 처리 및 상세 메시지 제공
+            String errorMessage = "투자 설정 중 오류가 발생했습니다: " + e.getMessage();
+            return ApiResponseDTO.error(errorMessage, "INTERNAL_SERVER_ERROR");
         }
     }
+
 
 }
