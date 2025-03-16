@@ -12,6 +12,7 @@ import com.shinhan.peoch.security.jwt.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -287,28 +288,41 @@ public class InvestmentController {
         }
     }
 
-//    /**
-//     *
-//     * @param jwtToken
-//     * @param requestDTO
-//     * @return
-//     */
-//    @PostMapping("/investment/setamount")
-//    public ResponseEntity<Double> PostSetAmount(
-//            @CookieValue(value = "jwt", required = false) String jwtToken,
-//            @RequestBody SetAmountRequestDTO requestDTO) {
-//        if (jwtToken == null || jwtToken.isEmpty()) {
-//            return ResponseEntity.status(401).body(null);
-//        }
-//
-//        // JWT에서 userId 추출
-//        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
-//        if (userId == null) {
-//            return ResponseEntity.status(401).body(null);
-//        }
-//
-//        setInvestAmountService.setInvestment(userId,requestDTO);
-//        return ResponseEntity.ok(refundRate);
-//    }
+    /**
+     * SetAmountRequestDTO기반으로 investment 설정
+     * @param jwtToken
+     * @param requestDTO
+     * @return
+     */
+    @PostMapping("/investment/setamount")
+    public ResponseEntity<ApiResponseDTO<String>> postSetAmount(
+            @CookieValue(value = "jwt", required = false) String jwtToken,
+            @RequestBody SetAmountRequestDTO requestDTO) {
+        // JWT 토큰 검증
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponseDTO.error("JWT 토큰이 없습니다.", "UNAUTHORIZED"));
+        }
+
+
+        // JWT에서 userId 추출
+        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponseDTO.error("유효하지 않은 JWT 토큰입니다.", "INVALID_TOKEN"));
+        }
+        System.out.println(requestDTO.toString());
+
+        // 투자 설정
+        ApiResponseDTO<String> response = setInvestAmountService.setInvestment(userId, requestDTO);
+        System.out.println(response);
+        // 결과 리턴
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response); // 200 OK
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response); // 400 BAD REQUEST
+        }
+    }
+
 
 }
