@@ -1,5 +1,6 @@
 package com.shinhan.peoch.card;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -17,9 +18,25 @@ public class CardController {
         this.cardDataService = cardDataService;
     }
 
+//    @Autowired
+//    JwtTokenProvider jwtTokenProvider;
+
     // 카드 명세서 조회
-    @GetMapping("/cardStatement/{userId}")
-    public CardStatementResponseDTO getCardStatement(@PathVariable Long userId, @RequestParam(required = false) String yearMonth) {
+    @GetMapping("/cardStatement")
+    public CardStatementResponseDTO getCardStatement(@CookieValue(value = "jwt", required = false) String jwtToken,
+            @RequestParam(required = false) String yearMonth) {
+
+//        if (jwtToken == null || jwtToken.isEmpty()) {
+//            return null;
+//        }
+//
+//        // JWT에서 userId 추출
+//        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+//        if (userId == null) {
+//            return null;
+//        }
+        Long userId = 1L;
+
         return cardService.getCardStatement(userId, yearMonth);
     }
 

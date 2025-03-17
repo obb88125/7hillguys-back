@@ -40,18 +40,16 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
                                                      @Param("endDate") LocalDateTime endDate);
 
 
-    @Query("SELECT SUM(p.finalAmount) " +
+    @Query("SELECT AVG(p.finalAmount) " +
             "FROM PaymentEntity p " +
             "JOIN p.card c " +
             "JOIN c.user u " +
-            "WHERE FUNCTION('TIMESTAMPDIFF', 'YEAR', u.birthdate, CURRENT_DATE) = :age " +
-            "AND p.date BETWEEN :startDate AND :endDate " +
-            "AND p.status IN ('PAID', 'PENDING') " +
-            "GROUP BY u.userId")
-    List<Integer> findAverageTotalFinalAmountByUserAgeAndDateBetween(@Param("age") int age,
-                                                                     @Param("startDate") LocalDateTime startDate,
-                                                                     @Param("endDate") LocalDateTime endDate);
-
+            "WHERE (YEAR(CURRENT_DATE) - YEAR(u.birthdate)) = :age " +
+            "AND p.date BETWEEN :startDate AND :endDate")
+    Double findAverageTotalFinalAmountByUserAgeAndDateBetween(
+            @Param("age") int age,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 
     // userId의 모든 결제 내역 조회(paid+pending)
     List<PaymentEntity> findByCard_User_UserId(Long userId);
