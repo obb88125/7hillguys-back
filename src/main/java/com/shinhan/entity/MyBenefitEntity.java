@@ -1,5 +1,6 @@
 package com.shinhan.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,12 +32,12 @@ public class MyBenefitEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne
     @MapsId("benefitId")
     @JoinColumn(name = "benefit_id")
     BenefitEntity benefit;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("cardId")
     @JoinColumn(name = "card_id")
     CardEntity card;
