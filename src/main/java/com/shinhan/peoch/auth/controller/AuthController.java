@@ -5,8 +5,6 @@ import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.security.SecurityUser;
 import com.shinhan.peoch.security.jwt.AuthService;
-import com.shinhan.peoch.security.jwt.JwtUtil;
-import com.shinhan.peoch.security.jwt.TokenBlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,56 +14,46 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequiredArgsConstructor
-
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+@RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;
     private final AuthService authService;
-    private final TokenBlacklistService tokenBlacklistService;
-    private final JwtUtil jwtUtil;
 
+    /**
+     * 회원가입 API
+     */
     @PostMapping("/register")
     public String register(@RequestBody UserEntity user) {
         return userService.register(user);
     }
 
+    /**
+     * 로그인 API
+     */
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody UserEntity user) {
         return authService.login(user);
     }
 
+    /**
+     * 로그아웃 API
+     */
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body("유효하지 않은 토큰입니다.");
-        }
-
-        String token = authHeader.substring(7); // "Bearer " 제거
-
-        if (!jwtUtil.validationToken(token)) {
-            return ResponseEntity.badRequest().body("유효하지 않은 토큰입니다.");
-        }
-
-        String email = jwtUtil.getUserEmail(token);
-        if (email == null) {
-            return ResponseEntity.badRequest().body("JWT에서 이메일을 추출할 수 없습니다.");
-        }
-
-        long expirationTime = jwtUtil.getExpirationTime(token);
-        tokenBlacklistService.blacklistToken(token, expirationTime);
-
+        authService.logout(request);
         return ResponseEntity.ok("로그아웃이 성공적으로 완료되었습니다.");
     }
 
+    /**
+     * 현재 사용자 정보 조회 API
+     */
     @GetMapping("/user")
     public UserResponseDTO getCurrentUser(@AuthenticationPrincipal SecurityUser securityUser) {
         if (securityUser == null) {
-            throw new RuntimeException("SecurityUser인증되지 않은 사용자입니다.");
+            throw new RuntimeException("인증되지 않은 사용자입니다.");
         }
         return new UserResponseDTO(securityUser.getUserId());
     }
 }
+

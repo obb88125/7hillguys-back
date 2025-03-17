@@ -1,5 +1,7 @@
 package com.shinhan.entity;
 
+import com.shinhan.entity.CardDesignEntity;
+import com.shinhan.entity.CardStatus;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "cards")
@@ -20,6 +23,7 @@ public class CardEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "card_id")  // 컬럼 이름을 명시적으로 card_id로 설정
     private Long cardId;
 
     @Column(unique = true, length = 16)
@@ -43,9 +47,7 @@ public class CardEntity {
     private CardStatus status;
 
     private Integer monthlyAllowance;
-
     private Integer tempAllowance;
-
     private Integer monthlySpent;
 
     @CreationTimestamp
@@ -56,6 +58,8 @@ public class CardEntity {
 
     @OneToOne
     @JoinColumn(name = "userId")
-    UserEntity user;
+    private UserEntity user;
 
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CardDesignEntity> cardDesigns;
 }
