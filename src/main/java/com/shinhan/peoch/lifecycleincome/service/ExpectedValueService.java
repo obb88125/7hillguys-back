@@ -43,6 +43,17 @@ public class ExpectedValueService {
 
         return totalPresentValue;
     }
+    //생애 주기 소득 총합
+    public Double calculateTotalExpectedIncome(Integer grantId) {
+        List<ExpectedIncomeEntity> incomeEntities = expectedIncomeRepository.findByUserProfileId(grantId);
+        if (incomeEntities.isEmpty()) {
+            throw new IllegalArgumentException("유저가 없어용");
+        }
+
+        ExpectedIncomeEntity latestIncomeEntity = incomeEntities.get(incomeEntities.size() - 1);
+        Map<Integer, Double> expectedIncome = parseJsonToMap(latestIncomeEntity.getExpectedIncome());
+        return expectedIncome.values().stream().mapToDouble(Double::doubleValue).sum();
+    }
 
 
 

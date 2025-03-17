@@ -3,6 +3,7 @@ package com.shinhan.peoch.auth.service;
 import com.shinhan.peoch.auth.dto.UserResponseDTO;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.security.SecurityUser;
+import com.shinhan.peoch.security.jwt.JwtUtil;
 import com.shinhan.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public String register(UserEntity user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
@@ -44,7 +46,7 @@ public class UserService implements UserDetailsService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        return new SecurityUser(user);
+        return new SecurityUser(user, jwtUtil);
     }
 
     public UserResponseDTO getCurrentUser(@AuthenticationPrincipal UserEntity userEntity) {

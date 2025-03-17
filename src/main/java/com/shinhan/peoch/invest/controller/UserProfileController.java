@@ -5,8 +5,10 @@ import com.shinhan.peoch.invest.dto.UserProfileDTO;
 import com.shinhan.peoch.invest.dto.UserProfileFileDTO;
 import com.shinhan.peoch.invest.service.UserProfileFileService;
 import com.shinhan.peoch.invest.service.UserProfileService;
+import com.shinhan.peoch.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,9 +20,26 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserProfileController {
     private final UserProfileService userProfileService;
     private final UserProfileFileService userProfileFileService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/save")
-    public ResponseEntity<UserProfileEntity> saveUserProfile(@RequestBody UserProfileDTO dto) {
+    public ResponseEntity<UserProfileEntity> saveUserProfile(@RequestBody UserProfileDTO dto, @CookieValue(value = "jwt", required = false) String jwt) {
+        if (jwt == null || jwt.isEmpty()) {
+            log.warn("[saveUserProfile] JWT 쿠키가 존재하지 않음!");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+        log.info("[saveUserProfile] 요청 도착, JWT: {}", jwt);
+
+        // JWT 검증 및 userId 추출
+        Long userId = jwtTokenProvider.getUserIdFromToken(jwt);
+        if (userId == null) {
+            log.warn("[saveUserProfile] JWT에서 userId 추출 실패!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        // userId를 DTO에 설정
+        dto.setUserId(userId.intValue());
+
         log.info("받은 데이터: {}", dto);
         UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
         return ResponseEntity.ok(savedProfile);
