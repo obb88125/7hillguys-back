@@ -77,7 +77,7 @@ public class PaymentService {
         if (installmentMonth > 1) {
             finalAmount = installmentPayment(card, installmentMonth, finalAmount);
             if (finalAmount < 0) { // 매달 결제 금액이 한도를 초과
-                return new PosResponse(false, "월 한도를 초과했습니다.", "LIMIT_EXCEEDED");
+                return new PosResponse(false, "할부 결제에 실패했습니다.", "INSTALLMENT_FAILED");
             }
         }
 
@@ -142,8 +142,8 @@ public class PaymentService {
     // 혜택 적용 검사
     private Map<String, Integer> applyBenefit(List<BenefitEntity> myBenfitList, PosPaymentRequest request, String cardNumber) {
         Long storeId = request.getStoreId(); // 포스기로부터 전달받은 상점 ID
-        int amount = request.getAmount(); // 결제 금액
-        int finalAmount = amount; // 최종 결제 금액
+        int originAmount = request.getAmount(); // 결제 금액
+        int finalAmount = originAmount; // 최종 결제 금액
         int discountAmount = 0;
         Integer usedBenefitId = null;
         Map<String, Integer> map = new HashMap<>();
@@ -158,7 +158,7 @@ public class PaymentService {
                 // 혜택 검사
                 if (benefitStoreId.equals(storeId)) {
                     // 최소 결제 금액 검사
-                    if (amount < benefit.getMinPayment()) {
+                    if (originAmount < benefit.getMinPayment()) {
                         break;
                     }
 
@@ -179,7 +179,7 @@ public class PaymentService {
                     }
 
                     // 최대 할인 금액 검사
-                    discountAmount = (int) (amount * (benefit.getDiscountRate() / 100.0));
+                    discountAmount = (int) (originAmount * (benefit.getDiscountRate() / 100.0));
                     if (discountAmount > benefit.getMaxDiscount()) {
                         discountAmount = benefit.getMaxDiscount();
                     }
@@ -187,7 +187,7 @@ public class PaymentService {
                     // 혜택 적용 완료
                     usedBenefitId = benefitId.intValue();
                     map.put("benefitId", usedBenefitId);
-                    finalAmount = amount - discountAmount;
+                    finalAmount = originAmount - discountAmount;
                     break;
                 }
             }
@@ -200,13 +200,18 @@ public class PaymentService {
 
     // 할부 결제
     private int installmentPayment(CardEntity card, int installmentMonth, int finalAmount) {
-        // 100원 단위 절사
+        // 최대 할부 개월 수 제한 (12개월)
+        if (installmentMonth > 12) {
+            return -1;
+        }
+
+        // 첫 회차 할부 결제 금액, 100원 단위 절사
         int installmentAmount = (finalAmount / installmentMonth) / 100 * 100;
 
         // 매달 결제 금액이 한도를 넘는지 검사
         int monthlyAllowance = card.getMonthlyAllowance();
 
-        if (installmentMonth > monthlyAllowance) {
+        if (installmentAmount > monthlyAllowance) {
             return -1;
         } else {
             return installmentAmount;

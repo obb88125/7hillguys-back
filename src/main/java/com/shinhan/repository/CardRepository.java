@@ -13,12 +13,6 @@ public interface CardRepository extends JpaRepository <CardEntity, Long> {
     // 특정 사용자의 카드 조회
     CardEntity findByUser_UserId(Long userId);
 
-    // 특정 사용자의 월 사용량 조회
-    Integer findMonthlySpentByUser_UserId(Long userId);
-
-    // 특정 사용자의 월 한도 조회
-    Integer findMonthlyAllowanceByUser_UserId(Long userId);
-
     // 카드번호로 카드 조회
     Optional<CardEntity> findByCardNumber(String cardNumber);
 

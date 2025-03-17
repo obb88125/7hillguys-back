@@ -2,6 +2,7 @@ package com.shinhan.peoch.card;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -9,9 +10,11 @@ import java.util.List;
 public class CardController {
 
     private final CardService cardService;
+    private final CardDataService cardDataService;
 
-    public CardController(CardService cardService) {
+    public CardController(CardService cardService, CardDataService cardDataService) {
         this.cardService = cardService;
+        this.cardDataService = cardDataService;
     }
 
     // 카드 명세서 조회
@@ -30,6 +33,12 @@ public class CardController {
     @GetMapping("/allBenefitSearch/{userId}")
     public List<AllBenefitDTO> getAllBenefit(@PathVariable Long userId) {
         return cardService.getAllBenefit(userId);
+    }
+
+    // 관리자 대시보드에서 카드 데이터 요청
+    @GetMapping("/cardData/{userId}")
+    public CardDataResponseDTO getCardData(@PathVariable Long userId, @RequestParam String date) {
+        return cardDataService.getCardData(userId, date);
     }
 
 }
