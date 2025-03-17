@@ -1,50 +1,43 @@
 package com.shinhan.entity;
 
-import java.time.LocalDateTime;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.shinhan.entity.CardEntity;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity; 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id; 
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.time.LocalDateTime;
 
-@Getter 
-@Setter 
-@Builder
-@NoArgsConstructor 
-@AllArgsConstructor
 @Entity
 @Table(name = "card_design")
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CardDesignEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "design_id")
+    private Long designId;
 
-    @Column(name = "layout_id")
+    @Column(name = "layout_id", nullable = false)
     private Integer layoutId;
-    
-    @Column(name = "username")
+
+    @Column(name = "username", nullable = false)
     private String username;
-     
-    @Column(name = "letter_color")
+
+    @Column(name = "letter_color", nullable = false)
     private int letterColor;
-    
+
     @Column(name = "bg_image_url")
     private String bgImageUrl;
- 
+
     @Column(name = "card_back_color")
     private String cardBackColor;
- 
+
     @Column(name = "logo_grayscale")
     private boolean logoGrayscale;
 
@@ -53,4 +46,9 @@ public class CardDesignEntity {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinColumn(name = "card_id", nullable = false)  // 참조 대상 컬럼과 이름 및 타입이 일치해야 함
+    private CardEntity card;
 }
