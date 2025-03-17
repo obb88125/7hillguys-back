@@ -286,3 +286,6 @@ src/main/resources/application.yml
 *.iml
 .idea/
 *.xml
+
+# Ignore macOS system files
+.DS_Store
