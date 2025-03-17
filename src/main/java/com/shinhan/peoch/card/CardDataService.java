@@ -1,14 +1,12 @@
 package com.shinhan.peoch.card;
 
 import com.shinhan.peoch.auth.entity.UserEntity;
-import com.shinhan.repository.CardRepository;
 import com.shinhan.repository.PaymentRepository;
 import com.shinhan.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
-import java.util.List;
 
 @Service
 public class CardDataService {
@@ -105,17 +103,9 @@ public class CardDataService {
     private int getAverageTotalFinalAmount(int age, LocalDate start, LocalDate end) {
         LocalDateTime startDateTime = start.atStartOfDay();
         LocalDateTime endDateTime = end.atTime(LocalTime.MAX);
-        List<Integer> totals = paymentRepository.findAverageTotalFinalAmountByUserAgeAndDateBetween(age, startDateTime, endDateTime);
+        Double avgTotal = paymentRepository.findAverageTotalFinalAmountByUserAgeAndDateBetween(age, startDateTime, endDateTime);
 
-        if (totals.isEmpty()) {
-            return 0;
-        }
-
-        double avg = totals.stream()
-                .mapToInt(Integer::intValue)
-                .average()
-                .orElse(0);
-        return (int) avg;
+        return (avgTotal != null) ? avgTotal.intValue() : 0;
     }
 
 }
