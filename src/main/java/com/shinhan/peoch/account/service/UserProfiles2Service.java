@@ -1,4 +1,4 @@
-package com.shinhan.peoch.auth.service;
+package com.shinhan.peoch.account.service;
 
 import com.shinhan.entity.UserProfiles2Entity;
 import com.shinhan.repository.UserProfiles2Repository;
