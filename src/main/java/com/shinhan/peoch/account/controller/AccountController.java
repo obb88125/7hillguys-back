@@ -1,6 +1,7 @@
 package com.shinhan.peoch.account.controller;
 
 import com.shinhan.peoch.account.dto.BillDTO;
+import com.shinhan.peoch.account.dto.PaymentCalculationDTO;
 import com.shinhan.peoch.account.entity.AccountEntity;
 import com.shinhan.peoch.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -79,10 +80,18 @@ public class AccountController {
 
     //납부 금액 산정
     @PostMapping("/cal")
-    public ResponseEntity<String> calculatePaymentAmount() {
-        String result = accountService.calculatePaymentAmount();
+    public ResponseEntity<Integer> calculatePaymentAmount(
+            @RequestBody PaymentCalculationDTO request
+    ) {
+        // JSON으로 넘어온 userId, userMonthlyIncome를 꺼냄
+        int result = accountService.calculatePaymentAmount(
+                request.getUserId(),
+                request.getUserMonthlyIncome()
+        );
+
         return ResponseEntity.ok(result);
     }
+
 
     // 납부 금액 산정 결과 조회
     @GetMapping("/result")

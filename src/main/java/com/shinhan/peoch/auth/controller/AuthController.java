@@ -69,4 +69,5 @@ public class AuthController {
         return new UserResponseDTO(securityUser.getUserId());
     }
 
+
 }
