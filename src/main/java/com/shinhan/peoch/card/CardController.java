@@ -1,5 +1,6 @@
 package com.shinhan.peoch.card;
 
+import com.shinhan.peoch.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,43 +19,73 @@ public class CardController {
         this.cardDataService = cardDataService;
     }
 
-//    @Autowired
-//    JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
 
     // 카드 명세서 조회
     @GetMapping("/cardStatement")
     public CardStatementResponseDTO getCardStatement(@CookieValue(value = "jwt", required = false) String jwtToken,
             @RequestParam(required = false) String yearMonth) {
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            return null;
+        }
 
-//        if (jwtToken == null || jwtToken.isEmpty()) {
-//            return null;
-//        }
-//
-//        // JWT에서 userId 추출
-//        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
-//        if (userId == null) {
-//            return null;
-//        }
-        Long userId = 1L;
+        // JWT에서 userId 추출
+        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+        if (userId == null) {
+            return null;
+        }
 
         return cardService.getCardStatement(userId, yearMonth);
     }
 
     // 혜택 명세서 조회
-    @GetMapping("/benefitStatement/{userId}")
-    public BenefitStatementResponseDTO getCardPerformance(@PathVariable Long userId, @RequestParam(required = false) String yearMonth) {
+    @GetMapping("/benefitStatement")
+    public BenefitStatementResponseDTO getCardPerformance(@CookieValue(value = "jwt", required = false) String jwtToken,
+                                                          @RequestParam(required = false) String yearMonth) {
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            return null;
+        }
+
+        // JWT에서 userId 추출
+        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+        if (userId == null) {
+            return null;
+        }
+
         return cardService.getCardPerformance(userId, yearMonth);
     }
 
     // 전체 혜택 조회
-    @GetMapping("/allBenefitSearch/{userId}")
-    public List<AllBenefitDTO> getAllBenefit(@PathVariable Long userId) {
+    @GetMapping("/allBenefitSearch")
+    public List<AllBenefitDTO> getAllBenefit(@CookieValue(value = "jwt", required = false) String jwtToken) {
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            return null;
+        }
+
+        // JWT에서 userId 추출
+        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+        if (userId == null) {
+            return null;
+        }
+
         return cardService.getAllBenefit(userId);
     }
 
     // 관리자 대시보드에서 카드 데이터 요청
-    @GetMapping("/cardData/{userId}")
-    public CardDataResponseDTO getCardData(@PathVariable Long userId, @RequestParam String date) {
+    @GetMapping("/cardData")
+    public CardDataResponseDTO getCardData(@CookieValue(value = "jwt", required = false) String jwtToken,
+                                           @RequestParam String date) {
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            return null;
+        }
+
+        // JWT에서 userId 추출
+        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+        if (userId == null) {
+            return null;
+        }
+
         return cardDataService.getCardData(userId, date);
     }
 
