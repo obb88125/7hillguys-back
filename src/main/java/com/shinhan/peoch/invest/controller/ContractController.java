@@ -102,7 +102,8 @@ public class ContractController {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("filename", "signed_contract.pdf");
+            //headers.setContentDispositionFormData("filename", "signed_contract.pdf");
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=signed_contract.pdf");
 
             log.info("✅ 계약서 PDF 생성 성공! userId={}, 크기: {} bytes", userId, pdf.length);
 
