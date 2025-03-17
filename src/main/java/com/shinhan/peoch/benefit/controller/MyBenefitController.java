@@ -8,6 +8,7 @@ import com.shinhan.peoch.benefit.dto.BenefitResponseDTO;
 import com.shinhan.peoch.benefit.dto.MyBenefitDTO;
 import com.shinhan.peoch.benefit.service.MyBenefitService;
 import com.shinhan.peoch.payment.PaymentService;
+import com.shinhan.peoch.security.jwt.JwtTokenProvider;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/benefit")
@@ -24,15 +26,22 @@ import java.util.List;
 public class MyBenefitController {
 
     private final MyBenefitService myBenefitService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 1. 내 카드에 적용된 혜택 및 사용 가능한 혜택 목록 가져오기
     @GetMapping("/card")
-    public ResponseEntity<BenefitResponseDTO> getCardBenefits() {
+    public ResponseEntity<?> getCardBenefits( @CookieValue(value = "jwt", required = false) String jwtToken) {
         // 예시: 토큰에서 사용자 ID 추출 (실제 구현은 JWT 라이브러리 등을 사용)
         // String token = authHeader.substring(7); // "Bearer " 제거
         // Long userId = tokenService.getUserIdFromToken(token);
         // 여기서는 임시로 고정값 사용 예: userId = 16L;
-        Long userId = 16L;
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            log.warn("🚨 [ContractController] JWT 쿠키 없음!");
+            return ResponseEntity.status(401).body(Map.of("error", "인증 토큰이 없습니다."));
+        }
+
+        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+
 
         BenefitResponseDTO response = myBenefitService.getBenefitsByUserId(userId);
         return ResponseEntity.ok(response);
