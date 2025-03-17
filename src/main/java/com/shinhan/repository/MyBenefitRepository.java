@@ -31,5 +31,7 @@ public interface MyBenefitRepository extends JpaRepository<MyBenefitEntity, MyBe
     @Query("SELECT mb FROM MyBenefitEntity mb WHERE mb.card.cardNumber = :cardNumber AND mb.benefit.benefitId = :benefitId")
     Optional<MyBenefitEntity> findMyBenefitByCardNumberAndBenefitId(@Param("cardNumber") String cardNumber, @Param("benefitId") Long benefitId);
 
+    @Query("select m from MyBenefitEntity m join fetch m.benefit where m.card.cardId = :cardId")
+    List<MyBenefitEntity> findAppliedByCardIdWithBenefit(@Param("cardId") Long cardId);
 
 }

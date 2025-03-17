@@ -43,6 +43,8 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
             @Param("endDate") LocalDateTime endDate);
 
 
+    List<PaymentEntity> findByCard_CardIdAndDateBetween(Long cardId, LocalDateTime start, LocalDateTime end);
+
 
 
 }

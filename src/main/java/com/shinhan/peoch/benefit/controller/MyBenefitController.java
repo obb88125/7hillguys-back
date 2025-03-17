@@ -1,14 +1,20 @@
 package com.shinhan.peoch.benefit.controller;
 
 
+import com.shinhan.entity.MyBenefitEntity;
+import com.shinhan.entity.PaymentEntity;
 import com.shinhan.peoch.benefit.dto.BenefitApplyDTO;
 import com.shinhan.peoch.benefit.dto.BenefitResponseDTO;
+import com.shinhan.peoch.benefit.dto.MyBenefitDTO;
 import com.shinhan.peoch.benefit.service.MyBenefitService;
+import com.shinhan.peoch.payment.PaymentService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/benefit")
@@ -32,20 +38,28 @@ public class MyBenefitController {
         return ResponseEntity.ok(response);
     }
     @DeleteMapping("/{benefitId}")
-    public ResponseEntity<?> deleteBenefit(
+    public ResponseEntity<MyBenefitDTO> deleteBenefit(
             @PathVariable("benefitId") Long benefitId,
             @RequestParam("cardId") Long cardId) {
-        myBenefitService.deleteBenefit(benefitId, cardId);
-        return ResponseEntity.ok().build();
+        MyBenefitDTO deletedDto = myBenefitService.deleteBenefit(benefitId, cardId);
+        return ResponseEntity.ok(deletedDto);
     }
 
-
     @PostMapping("/apply")
-    public ResponseEntity<String> applyBenefits(@RequestBody BenefitApplyDTO benefitApplyDTO) {
+    public ResponseEntity<List<MyBenefitDTO>> applyBenefits(@RequestBody BenefitApplyDTO benefitApplyDTO) {
 
         log.info("benefitApplyDTO: {}", benefitApplyDTO);
 
-        myBenefitService.applyBenefits(benefitApplyDTO);
-        return ResponseEntity.ok("혜택이 성공적으로 적용되었습니다.");
+        List<MyBenefitDTO>  mybenefit = myBenefitService.applyBenefits(benefitApplyDTO);
+        return ResponseEntity.ok(mybenefit);
+    }
+
+    // 전체 결제 내역 조회 (예: GET /payments?month=2025-03)
+    @GetMapping("/payments")
+    public ResponseEntity<List<PaymentEntity>> getPaymentsByCardAndMonth(
+            @RequestParam("cardId") Long cardId,
+            @RequestParam("month") String month) {
+        List<PaymentEntity> payments = myBenefitService.getPaymentsByCardAndMonth(cardId, month);
+        return ResponseEntity.ok(payments);
     }
 }
