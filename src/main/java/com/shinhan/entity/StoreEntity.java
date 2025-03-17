@@ -22,7 +22,8 @@ public class StoreEntity {
 
     private String name;
 
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private StoreCategory category;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

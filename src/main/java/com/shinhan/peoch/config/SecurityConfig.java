@@ -1,13 +1,12 @@
 package com.shinhan.peoch.config;
 
+import com.shinhan.peoch.auth.service.UserService;
 import com.shinhan.peoch.security.jwt.JwtFilter;
 import com.shinhan.peoch.security.jwt.JwtUtil;
 import com.shinhan.peoch.security.jwt.TokenBlacklistService;
-import com.shinhan.peoch.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,10 +26,10 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
 
-    private static final String[] USER_LIST = {"/api/review/**", "/api/investment/status", "/api/contract/**"};
+    private static final String[] USER_LIST = {"/api/review/**", "/api/investment/status", "/api/contract/**","/api/investment/**"};
     private static final String[] ADMIN_LIST ={};
     private static final String[] WHITE_LIST={
-            "/api/auth/register", "/api/auth/login", "/api/review/save", "/api/review/file", "/api/auth/logout"
+           "/api/user/**", "/api/auth/register", "/api/auth/login", "/api/review/save", "/api/review/file", "/api/auth/logout"
     };
 
     @Bean

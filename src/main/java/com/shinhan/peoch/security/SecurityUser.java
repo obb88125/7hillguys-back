@@ -1,6 +1,9 @@
 package com.shinhan.peoch.security;
 
 import com.shinhan.peoch.auth.entity.UserEntity;
+import com.shinhan.peoch.security.jwt.JwtUtil; // 추가
+import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -8,13 +11,20 @@ import org.springframework.security.core.userdetails.User;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Slf4j
 public class SecurityUser extends User {
     private static final String ROLE_PREFIX = "ROLE_";
     private final UserEntity user;
+    private final JwtUtil jwtUtil; // 추가
 
-    public SecurityUser(UserEntity user) {
+    public SecurityUser(UserEntity user, JwtUtil jwtUtil) { // JwtUtil 주입
         super(user.getEmail(), user.getPassword(), makeRole(user));
         this.user = user;
+        this.jwtUtil = jwtUtil; // 추가
+    }
+
+    public Long getUserId() {
+        return user.getUserId();
     }
 
     private static Collection<? extends GrantedAuthority> makeRole(UserEntity user) {
@@ -23,9 +33,26 @@ public class SecurityUser extends User {
         return roleList;
     }
 
-    //UserEntity의 정보를 직접 가져올 수 있도록 getter 추가
-    public Long getUserId() {
-        return user.getUserId();
+    public Long getUserId(String token) {
+        Claims claims = jwtUtil.parseClaims(token); // JwtUtil을 사용하도록 변경
+        if (claims == null) {
+            log.warn("[JwtUtil] JWT Claims가 null입니다.");
+            return null;
+        }
+        try {
+            Object userIdObj = claims.get("userId");
+            if (userIdObj instanceof Integer) {
+                return ((Integer) userIdObj).longValue();
+            } else if (userIdObj instanceof Long) {
+                return (Long) userIdObj;
+            } else {
+                log.warn("[JwtUtil] userId의 데이터 타입이 예상과 다릅니다. 값: {}", userIdObj);
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("[JwtUtil] userId 추출 중 오류 발생", e);
+            return null;
+        }
     }
 
     public String getEmail() {
@@ -37,6 +64,6 @@ public class SecurityUser extends User {
     }
 
     public UserEntity getUserEntity() {
-        return user;  //UserEntity 자체를 가져올 수 있도록 추가
+        return user;
     }
 }
