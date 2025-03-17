@@ -38,4 +38,10 @@ public class UserProfileService {
             throw new RuntimeException("JSON 변환 오류 발생", e);
         }
     }
+
+    public UserProfileEntity findUserProfileByUserIdOrderByUpdatedAtDesc(Long userId) {
+        // Optional을 사용하여 userId로 가장 최신 사용자프로필 검색
+        return userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(Math.toIntExact(userId))
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 Profile이 존재하지 않습니다."));
+    }
 }

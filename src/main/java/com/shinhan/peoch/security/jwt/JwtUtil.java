@@ -22,7 +22,7 @@ public class JwtUtil {
     public JwtUtil(
             @Value("${jwt.secret}") String secretKey,
             @Value("${jwt.expiration_time}") long accessTokenExpTime
-            ) {
+    ) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpTime = accessTokenExpTime;
@@ -43,10 +43,10 @@ public class JwtUtil {
         ZonedDateTime tokenValidity = now.plusSeconds(expireTime);
 
         return Jwts.builder()
-                .setClaims(claims) //사용자 정보 저장
-                .setIssuedAt(Date.from(now.toInstant()))	//발급 시간
-                .setExpiration(Date.from(tokenValidity.toInstant())) // set 만료시간
-                .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘과 signature 에 들어갈 secret값 세팅
+                .setClaims(claims)
+                .setIssuedAt(Date.from(now.toInstant()))
+                .setExpiration(Date.from(tokenValidity.toInstant()))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -57,6 +57,19 @@ public class JwtUtil {
             log.error("JWT에서 userEmail을 추출할 수 없음! Claims: {}", claims);
         }
         return email;
+    }
+
+    public Long getUserId(String token) {
+        Claims claims = parseClaims(token);
+        log.info("[JwtUtil] Claims 내용: {}", claims); // Claims 값 로그 추가
+
+        Integer userId = claims.get("userId", Integer.class);
+        if (userId == null) {
+            log.error("[JwtUtil] JWT에서 userId를 추출할 수 없음! Claims: {}", claims);
+            return null;
+        }
+        log.info("[JwtUtil] 추출된 userId: {}", userId);
+        return userId.longValue();
     }
 
     public boolean validationToken(String token) {
@@ -83,7 +96,6 @@ public class JwtUtil {
         }
     }
 
-    //JWT 남은 만료 시간 가져오는 메서드
     public long getExpirationTime(String token) {
         return parseClaims(token).getExpiration().getTime() - System.currentTimeMillis();
     }
