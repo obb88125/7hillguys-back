@@ -30,7 +30,7 @@ public class NormUserProfilesEntity {
 
     private Integer healthStatus;
 
-    private Integer gender;
+    private Boolean gender;
 
     private Integer address;
 
