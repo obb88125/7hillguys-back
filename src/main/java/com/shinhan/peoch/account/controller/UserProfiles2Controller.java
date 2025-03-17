@@ -1,7 +1,7 @@
 package com.shinhan.peoch.account.controller;
 
 import com.shinhan.entity.UserProfiles2Entity;
-import com.shinhan.peoch.auth.service.UserProfiles2Service;
+import com.shinhan.peoch.account.service.UserProfiles2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +12,7 @@ import com.shinhan.peoch.security.jwt.JwtTokenProvider;
 public class UserProfiles2Controller {
 
     private final UserProfiles2Service userProfiles2Service;
-
-    @Autowired
-    JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/userprofiles2")
     public ResponseEntity<UserProfiles2Entity> getUserProfiles2(@CookieValue(value = "jwt", required = false) String jwtToken) {
