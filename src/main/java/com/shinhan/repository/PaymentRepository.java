@@ -22,27 +22,26 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     @Query("SELECT COALESCE(SUM(p.discountAmount), 0) FROM PaymentEntity p WHERE p.card.user.userId = :userId")
     Optional<Long> sumDiscountAmountByUserId(@Param("userId") long userId);
 
-    // 해당 userId 사용자의 finalAmount 총합을 Optional<Long>으로 리턴
-    @Query("SELECT COALESCE(SUM(p.finalAmount), 0) FROM PaymentEntity p WHERE p.card.user.userId = :userId")
+    // userId에 해당되는 것들 중에 pending+paid 상태인 payment의  finalAmount 총합을 Optional<Long>으로 리턴
+    @Query("SELECT COALESCE(SUM(p.finalAmount), 0) FROM PaymentEntity p " +
+            "WHERE p.card.user.userId = :userId " +
+            "AND (p.status = 'PAID' OR p.status = 'PENDING')")
     Optional<Long> sumFinalAmountByUserId(@Param("userId") long userId);
 
 
-    // 해당 userId 사용자의 모든 결제 내역 조회
+    // userId의 모든 결제 내역 조회(paid+pending)
     List<PaymentEntity> findByCard_User_UserId(Long userId);
 
     @Query("SELECT FUNCTION('DATE_FORMAT', p.date, '%Y-%m') as month, SUM(p.finalAmount) as total " +
             "FROM PaymentEntity p " +
             "WHERE p.card.user.userId = :userId " +
             "AND p.date BETWEEN :startDate AND :endDate " +
-            "AND p.status = 'PAID' " +
+            "AND (p.status = 'PAID' OR p.status = 'PENDING') " +
             "GROUP BY FUNCTION('DATE_FORMAT', p.date, '%Y-%m') " +
             "ORDER BY FUNCTION('DATE_FORMAT', p.date, '%Y-%m') ASC")
     List<Object[]> findMonthlyPaymentsByUserIdAndDateBetweenAndStatus(
             @Param("userId") Long userId,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
-
-
-
 
 }
