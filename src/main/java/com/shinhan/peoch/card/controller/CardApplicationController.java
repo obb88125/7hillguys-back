@@ -8,6 +8,7 @@ import com.shinhan.peoch.card.service.CardApplicationService;
 import com.shinhan.peoch.design.dto.CardDesignDTO;
 import com.shinhan.peoch.design.service.CardDesignService;
 import com.shinhan.peoch.security.SecurityUser;
+import com.shinhan.peoch.security.jwt.JwtTokenProvider;
 import com.shinhan.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +19,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/card")
 @RequiredArgsConstructor
 public class CardApplicationController {
-
+    private final JwtTokenProvider jwtTokenProvider;
     private final CardApplicationService cardService;
     private final CardDesignService cardDesignService;
 
@@ -62,8 +64,15 @@ public class CardApplicationController {
     }
 
     @GetMapping("/userInfo")
-    public ResponseEntity<UserInfoDTO> getUserInfo() {
+    public ResponseEntity<?> getUserInfo(@CookieValue(value = "jwt", required = false) String jwtToken) {
         // 현재 JWT 적용 전이므로 userId를 고정 (예: 16L)
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            log.warn("🚨 [ContractController] JWT 쿠키 없음!");
+            return ResponseEntity.status(401).body(Map.of("error", "인증 토큰이 없습니다."));
+        }
+
+        Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+
         UserEntity user = userRepository.findById(16L)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         UserInfoDTO dto = new UserInfoDTO(user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
