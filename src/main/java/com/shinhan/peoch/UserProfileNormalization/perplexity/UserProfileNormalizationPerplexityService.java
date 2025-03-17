@@ -1,13 +1,17 @@
 package com.shinhan.peoch.UserProfileNormalization.perplexity;
 
-import com.shinhan.entity.UserProfileEntity;
 import com.shinhan.entity.NormUserProfilesEntity;
-import com.shinhan.repository.UserProfileRepository;
+import com.shinhan.entity.UserProfileEntity;
+import com.shinhan.peoch.lifecycleincome.DTO.ApiResponseDTO;
 import com.shinhan.repository.NormUserProfilesRepository;
+import com.shinhan.repository.UserProfileRepository;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,35 +30,53 @@ public class UserProfileNormalizationPerplexityService {
     private static final int DEFAULT_SCORE = 50; // 기본값
 
     @Transactional
-    public NormUserProfilesEntity normalizeAndSaveUserProfile(Integer userProfileId) throws JSONException {
-        // 1. 사용자 프로필 조회
-        UserProfileEntity userProfile = userProfileRepository.findById(userProfileId)
-                .orElseThrow(() -> new RuntimeException("User profile not found with ID: " + userProfileId));
+    public ResponseEntity<ApiResponseDTO<String>> normalizeAndSaveUserProfile(Integer userProfileId) throws JSONException {
+        try {
+            // 1. 사용자 프로필 조회
+            UserProfileEntity userProfile = userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userProfileId)
+                    .orElseThrow(() -> new RuntimeException("User profile not found with ID: " + userProfileId));
 
-        System.out.println(userProfile.toString());
+            // 2. 정규화된 프로필 엔티티 조회 (있으면 업데이트, 없으면 새로 생성)
+            NormUserProfilesEntity normalizedProfile = normUserProfilesRepository
+                    .findById(userProfile.getUserProfileId())
+                    .orElse(new NormUserProfilesEntity());
 
-        // 2. 프로필 데이터를 JSON 형태로 변환
-        JSONObject profileData = convertProfileToJson(userProfile);
+            // 3. 프로필 데이터를 JSON 형태로 변환
+            JSONObject profileData = convertProfileToJson(userProfile);
 
-        // 3. AI 모델에 한 번에 요청하여 모든 필드 정규화
-        JSONObject normalizedScores = normalizeAllFields(profileData);
+            // 4. AI 모델에 한 번에 요청하여 모든 필드 정규화
+            JSONObject normalizedScores = normalizeAllFields(profileData);
 
-        // 4. 정규화된 점수로 엔티티 생성
-        NormUserProfilesEntity normalizedProfile = NormUserProfilesEntity.builder()
-                .university(getScoreFromJson(normalizedScores, "university"))
-                .educationMajor(getScoreFromJson(normalizedScores, "education_major"))
-                .certification(getScoreFromJson(normalizedScores, "certification"))
-                .familyStatus(getScoreFromJson(normalizedScores, "family_status"))
-                .assets(getScoreFromJson(normalizedScores, "assets"))
-                .criminalRecord(getScoreFromJson(normalizedScores, "criminal_record"))
-                .healthStatus(getScoreFromJson(normalizedScores, "health_status"))
-                .gender(userProfile.getGender()) // 성별은 기존 값 차용
-                .address(getScoreFromJson(normalizedScores, "address"))
-                .mentalStatus(getScoreFromJson(normalizedScores, "mental_status"))
-                .build();
+            // 5. 정규화된 점수로 엔티티 업데이트
+            normalizedProfile.setUserProfileId(userProfile.getUserProfileId());
+            normalizedProfile.setUniversity(getScoreFromJson(normalizedScores, "university"));
+            normalizedProfile.setEducationMajor(getScoreFromJson(normalizedScores, "education_major"));
+            normalizedProfile.setCertification(getScoreFromJson(normalizedScores, "certification"));
+            normalizedProfile.setFamilyStatus(getScoreFromJson(normalizedScores, "family_status"));
+            normalizedProfile.setAssets(getScoreFromJson(normalizedScores, "assets"));
+            normalizedProfile.setCriminalRecord(getScoreFromJson(normalizedScores, "criminal_record"));
+            normalizedProfile.setHealthStatus(userProfile.getHealthStatus());
+            normalizedProfile.setGender(userProfile.getGender());
+            normalizedProfile.setAddress(getScoreFromJson(normalizedScores, "address"));
+            normalizedProfile.setMentalStatus(userProfile.getMentalStatus());
 
-        return normUserProfilesRepository.save(normalizedProfile);
+            // 저장
+            normUserProfilesRepository.save(normalizedProfile);
+
+            // 성공 응답 반환
+            return ResponseEntity.ok(ApiResponseDTO.success("프로필 정규화가 성공적으로 완료되었습니다."));
+        } catch (ObjectOptimisticLockingFailureException e) {
+            // 낙관적 잠금 예외 처리
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponseDTO.error("프로필 정규화 중 충돌이 발생했습니다. 잠시 후 다시 시도해주세요.", "CONFLICT_ERROR"));
+        } catch (Exception e) {
+            // 기타 예외 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponseDTO.error("프로필 정규화 중 오류가 발생했습니다: " + e.getMessage(), "SERVER_ERROR"));
+        }
     }
+
+
 
     // 프로필 데이터를 JSON 형태로 변환
     private JSONObject convertProfileToJson(UserProfileEntity profile) throws JSONException {

@@ -58,6 +58,7 @@ public class SetInvestAmountService {
     public ApiResponseDTO<String> stopInvestment(Long userId) {
         /**
          *   기존 엑시트 비용함수랑 누적 환급 금액이 일치하거나 더 많으면 엑시트 비용은 그 시점에서
+         *   남은 기간 %로만 적용
          */
 
         InvestmentEntity investment = investmentRepository.findInvestmentByUserId(userId);
