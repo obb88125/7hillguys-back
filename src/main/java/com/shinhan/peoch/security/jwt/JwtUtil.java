@@ -61,7 +61,7 @@ public class JwtUtil {
 
     public Long getUserId(String token) {
         Claims claims = parseClaims(token);
-        log.info("[JwtUtil] Claims 내용: {}", claims); // 🔹 Claims 값 로그 추가
+        log.info("[JwtUtil] Claims 내용: {}", claims); // Claims 값 로그 추가
 
         Integer userId = claims.get("userId", Integer.class);
         if (userId == null) {
