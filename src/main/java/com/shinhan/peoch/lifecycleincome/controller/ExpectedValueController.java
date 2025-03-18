@@ -30,7 +30,7 @@ public class ExpectedValueController {
     public ResponseEntity<List<ExpectedIncomeEntity>> getExpectedIncomes(
             @PathVariable Integer userProfileId) {
 
-        List<ExpectedIncomeEntity> incomes = expectedIncomeService.getExpectedIncomesByUserProfileId(userProfileId);
+        List<ExpectedIncomeEntity> incomes = expectedIncomeService.findByUserProfile_UserProfileId(userProfileId);
         return ResponseEntity.ok(incomes);
     }
 
