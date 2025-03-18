@@ -1,24 +1,18 @@
 package com.shinhan.peoch.account.controller;
 
 import com.shinhan.entity.UserProfiles2Entity;
-import com.shinhan.peoch.auth.service.UserProfiles2Service;
-import com.shinhan.peoch.security.jwt.JwtTokenProvider;
+import com.shinhan.peoch.account.service.UserProfiles2Service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import com.shinhan.peoch.security.jwt.JwtTokenProvider;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserProfiles2Controller {
 
     private final UserProfiles2Service userProfiles2Service;
-
-    @Autowired
-    JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/userprofiles2")
     public ResponseEntity<UserProfiles2Entity> getUserProfiles2(@CookieValue(value = "jwt", required = false) String jwtToken) {

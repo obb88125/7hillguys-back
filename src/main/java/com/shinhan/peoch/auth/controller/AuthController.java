@@ -1,5 +1,6 @@
 package com.shinhan.peoch.auth.controller;
 
+import com.shinhan.peoch.auth.dto.UserNameResponseDTO;
 import com.shinhan.peoch.auth.dto.UserResponseDTO;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
@@ -55,5 +56,15 @@ public class AuthController {
         }
         return new UserResponseDTO(securityUser.getUserId());
     }
+    /**
+     * 현재 사용자 이름 조회 API
+     */
+    @GetMapping("/userId")
+    public UserNameResponseDTO getCurrentUserName(@AuthenticationPrincipal SecurityUser securityUser) {
+        if (securityUser == null) {
+            throw new RuntimeException("인증되지 않은 사용자입니다.");
+        }
+        return new UserNameResponseDTO(securityUser.getName());
+    }
 }
-
+ 
