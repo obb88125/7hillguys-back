@@ -13,7 +13,6 @@ import com.shinhan.repository.InvestmentRepository;
 import com.shinhan.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -34,12 +33,12 @@ public class SetInvestAmountService {
     UserProfileRepository userProfileRepository;
 
     public SetInvestAmountDTO getInvestmentData(Integer userProfileId) {
-        UserProfileEntity userProfileEntity = userProfileRepository.findLatestProfileWithExpectedIncome(userProfileId)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 유저 프로필 정보를 찾을 수 없습니다."));
-        System.out.println(userProfileEntity);
+
+        UserProfileEntity userProfileEntity = userProfileRepository.getReferenceById(userProfileId);
+
         // 1. 투자 정보 조회
         InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userProfileEntity.getUserId())
-                .orElseThrow(() -> new UsernameNotFoundException("해당 투자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("해당 투자 정보를 찾을 수 없습니다."));
         System.out.println(investment);
 
         // 2. 예상 소득 데이터 조회
