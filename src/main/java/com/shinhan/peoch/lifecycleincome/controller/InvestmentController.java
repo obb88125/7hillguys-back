@@ -70,7 +70,7 @@ public class InvestmentController {
         }
         Integer userId = userIdLong.intValue();
 
-        return investmentService.createInvestment(userId);
+        return investmentService.createOrUpdateInvestment(userId);
     }
 
 
@@ -347,6 +347,7 @@ public class InvestmentController {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("프로필 정규화 중 충돌이 발생했습니다. 잠시 후 다시 시도해주세요.");
         }
+
     }
 
 
