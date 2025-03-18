@@ -106,7 +106,6 @@ public class InvestmentController {
     @GetMapping("/investment/tempallowance")
     public InvestmentTempAllowanceDTO getInvestmentDetails(
             @CookieValue(value = "jwt", required = false) String jwtToken) {
-        System.out.println("1213111111111111111111");
         if (jwtToken == null || jwtToken.isEmpty()) {
             System.out.println("토큰없어");
             return null;
@@ -118,7 +117,6 @@ public class InvestmentController {
             System.out.println("id가 없엉");
             return null;
         }
-        System.out.println("-------------11111111111");
         Integer userId = userIdLong.intValue();
         System.out.println(investmentService.calculateInvestmentDetails(userId).toString());
         return investmentService.calculateInvestmentDetails(userId);
