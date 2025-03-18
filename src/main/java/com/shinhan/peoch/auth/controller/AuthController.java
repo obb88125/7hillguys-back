@@ -1,5 +1,6 @@
 package com.shinhan.peoch.auth.controller;
 
+import com.shinhan.peoch.auth.dto.UserNameResponseDTO;
 import com.shinhan.peoch.auth.dto.UserResponseDTO;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.auth.service.UserService;
