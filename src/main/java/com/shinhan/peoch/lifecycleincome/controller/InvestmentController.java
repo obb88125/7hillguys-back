@@ -171,6 +171,7 @@ public class InvestmentController {
         Integer userId = userIdLong.intValue();
 
         ReallyExitResponseDTO response = investmentService.getInvestmentExitInfo(userId);
+        System.out.println(response);
         return ResponseEntity.ok(response);
     }
 
@@ -192,9 +193,8 @@ public class InvestmentController {
             return ResponseEntity.status(401).body(null);
         }
         Integer userId = userIdLong.intValue();
-
         //UserID에 해당되는 profile 중에 가장 최신 profile챙겨옴
-        UserProfileEntity userProfileEntity = userProfileService.findUserProfileByUserIdOrderByUpdatedAtDesc(Long.valueOf(userId));
+        UserProfileEntity userProfileEntity = userProfileService.findUserProfileByUserIdOrderByUpdatedAtDesc(userId);
         SetInvestAmountDTO response = setInvestAmountService.getInvestmentData(userProfileEntity.getUserProfileId());
         return ResponseEntity.ok(response);
     }

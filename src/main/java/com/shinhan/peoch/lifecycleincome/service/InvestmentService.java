@@ -330,6 +330,7 @@ public class InvestmentService {
                 startDate.atStartOfDay(),
                 endDate.plusDays(1).atStartOfDay().minusSeconds(1));
 
+
         List<MonthlyPaymentDTO> monthlyPaymentDTOS = monthlyPayments.stream()
                 .map(obj -> new MonthlyPaymentDTO((String)obj[0], (Long)obj[1]))
                 .collect(Collectors.toList());
