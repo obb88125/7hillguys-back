@@ -27,8 +27,9 @@ public class ExpectedValueService {
     UserProfileRepository userProfileRepository;
 
     public Double calculatePresentValue(Integer userId) {
-        UserProfileEntity userProfile = userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 Profile이 존재하지 않습니다."));;
+        UserProfileEntity userProfile = userProfileRepository.findLatestProfileWithExpectedIncome(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 Profile이 존재하지 않습니다."));
+        System.out.println(userProfile);
         List<ExpectedIncomeEntity> incomeEntities = expectedIncomeRepository.findByUserProfileId(userProfile.getUserProfileId());
         if (incomeEntities.isEmpty()) {
             throw new IllegalArgumentException("User not found");
@@ -51,8 +52,10 @@ public class ExpectedValueService {
         return totalPresentValue;
     }
     //생애 주기 소득 총합
-    public Double calculateTotalExpectedIncome(Integer grantId) {
-        List<ExpectedIncomeEntity> incomeEntities = expectedIncomeRepository.findByUserProfileId(grantId);
+    public Double calculateTotalExpectedIncome(Integer userId) {
+        UserProfileEntity userProfileEntity = userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
+                .orElseThrow(() -> new RuntimeException("User profile이 없음"));
+        List<ExpectedIncomeEntity> incomeEntities = expectedIncomeRepository.findByUserProfileId(userProfileEntity.getUserProfileId());
         if (incomeEntities.isEmpty()) {
             throw new IllegalArgumentException("유저가 없어용");
         }

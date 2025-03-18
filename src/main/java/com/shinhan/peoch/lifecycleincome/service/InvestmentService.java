@@ -90,8 +90,11 @@ public class InvestmentService {
         }
     }
     public InvestmentEntity createInvestment(Integer userId) {
+
         // 예상 소득 데이터 가져오기
-        List<ExpectedIncomeEntity> incomeEntities = expectedIncomeRepository.findByUserProfileId(userId);
+        UserProfileEntity userProfileEntity = userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
+                .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
+        List<ExpectedIncomeEntity> incomeEntities = expectedIncomeRepository.findByUserProfileId(userProfileEntity.getUserProfileId());
         if (incomeEntities.isEmpty()) {
             throw new IllegalArgumentException("User not found");
         }
@@ -272,7 +275,7 @@ public class InvestmentService {
         //그래프용 데이터
         UserProfileEntity userProfileEntity = userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
                 .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
-        List<ExpectedIncomeEntity> incomes = expectedIncomeService.getExpectedIncomesByUserProfileId(userProfileEntity.getUserProfileId());
+        List<ExpectedIncomeEntity> incomes = expectedIncomeService.findByUserProfile_UserProfileId(userProfileEntity.getUserProfileId());
         // 결과 반환
         return new InvestmentTempAllowanceDTO(availableAmount, investValue, progress, expectedIncome, refundRate, inflationRate,incomes);
     }

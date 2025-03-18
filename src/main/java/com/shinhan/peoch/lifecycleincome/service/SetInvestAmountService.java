@@ -34,14 +34,16 @@ public class SetInvestAmountService {
     UserProfileRepository userProfileRepository;
 
     public SetInvestAmountDTO getInvestmentData(Integer userProfileId) {
-        UserProfileEntity userProfileEntity = userProfileRepository.findByUserProfileId(userProfileId)
+        UserProfileEntity userProfileEntity = userProfileRepository.findLatestProfileWithExpectedIncome(userProfileId)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 유저 프로필 정보를 찾을 수 없습니다."));
+        System.out.println(userProfileEntity);
         // 1. 투자 정보 조회
         InvestmentEntity investment = investmentRepository.findFirstByUserIdOrderByUpdatedAtDesc(userProfileEntity.getUserId())
                 .orElseThrow(() -> new UsernameNotFoundException("해당 투자 정보를 찾을 수 없습니다."));
+        System.out.println(investment);
 
         // 2. 예상 소득 데이터 조회
-        ExpectedIncomeEntity incomes = expectedIncomeRepository.findFirstByUserProfileIdOrderByCreatedAtDesc(userProfileId).
+        ExpectedIncomeEntity incomes = expectedIncomeRepository.findFirstByUserProfileOrderByCreatedAtDesc(userProfileEntity).
         orElseThrow(() -> new RuntimeException("사용자 예상 소득 정보를 찾을 수 없습니다."));
 
 
