@@ -55,5 +55,15 @@ public class AuthController {
         }
         return new UserResponseDTO(securityUser.getUserId());
     }
+    /**
+     * 현재 사용자 이름 조회 API
+     */
+    @GetMapping("/userId")
+    public UserNameResponseDTO getCurrentUserName(@AuthenticationPrincipal SecurityUser securityUser) {
+        if (securityUser == null) {
+            throw new RuntimeException("인증되지 않은 사용자입니다.");
+        }
+        return new UserNameResponseDTO(securityUser.getName());
+    }
 }
-
+ 
