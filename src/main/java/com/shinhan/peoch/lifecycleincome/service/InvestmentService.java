@@ -205,7 +205,7 @@ public class InvestmentService {
         LocalDate endDate = calculateEndDate(user.getBirthdate());
         // 연 수익률 계산
         double annualizedReturnRate = calculateAnnualizedReturnRate(investment.getStartDate(), endDate, rateofreturn);
-
+        //userid로 넘겨줌
         double presentValue = expectedValueService.calculatePresentValue(userId);
         double refundRate = ((investAmount* (1+annualizedReturnRate)) / presentValue * 100);
         refundRate = Math.round(refundRate * 1000) / 1000.0;
