@@ -1,6 +1,5 @@
 package com.shinhan.peoch.invest.controller;
 
-import com.shinhan.entity.InvestmentEntity;
 import com.shinhan.entity.UserProfileEntity;
 import com.shinhan.peoch.invest.dto.UserProfileDTO;
 import com.shinhan.peoch.invest.service.UserProfileFileService;
@@ -50,14 +49,21 @@ public class UserProfileController {
 
         // userId를 DTO에 설정
         dto.setUserId(userId.intValue());
+        /*
 
-        log.info("받은 데이터: {}", dto);
-        //normprofile 만들기
+        일단 주석
+        normprofile 만들기
         UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
-        //expectedIncome 만들기
+        expectedIncome 만들기
         InvestmentEntity investment = investmentService.createOrUpdateInvestment(Math.toIntExact(userId));
         return ResponseEntity.ok(savedProfile);
+        */
+        log.info("받은 데이터: {}", dto);
+        UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
+        return ResponseEntity.ok(savedProfile);
+
     }
+
 
     @PostMapping("/file")
     public ResponseEntity<String> submitUserProfile(
