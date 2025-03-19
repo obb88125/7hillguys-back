@@ -90,11 +90,12 @@ public class SetInvestAmountService {
 
             // 오늘 기준 설정
             LocalDate startDate = LocalDate.now();
-            investment.setStartDate(startDate);
-
-            // 종료일은 오늘부터 입력한 년수 만큼
-            LocalDate endDate = startDate.plusYears(setAmountRequestDTO.getPeriod());
-            investment.setEndDate(endDate);
+            if(investment.getStartDate()==null){
+                investment.setStartDate(startDate);
+                // 종료일은 오늘부터 입력한 년수 만큼
+                LocalDate endDate = startDate.plusYears(setAmountRequestDTO.getPeriod());
+                investment.setEndDate(endDate);
+            }
 
             // DB에 저장
             investmentRepository.save(investment);

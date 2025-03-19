@@ -293,6 +293,7 @@ public class InvestmentController {
 
     /**
      * SetAmountRequestDTO기반으로 investment 설정
+     * 투자 날짜가 오늘로 설정됨
      * @param jwtToken
      * @param requestDTO
      * @return
@@ -318,7 +319,6 @@ public class InvestmentController {
 
         // 투자 설정
         ApiResponseDTO<String> response = setInvestAmountService.setInvestment(userId, requestDTO);
-        System.out.println(response);
         // 결과 리턴
         if (response.isSuccess()) {
             return ResponseEntity.ok(response); // 200 OK
