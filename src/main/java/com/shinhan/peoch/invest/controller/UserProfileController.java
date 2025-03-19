@@ -4,6 +4,7 @@ import com.shinhan.entity.UserProfileEntity;
 import com.shinhan.peoch.invest.dto.UserProfileDTO;
 import com.shinhan.peoch.invest.service.UserProfileFileService;
 import com.shinhan.peoch.invest.service.UserProfileService;
+import com.shinhan.peoch.lifecycleincome.service.InvestmentService;
 import com.shinhan.peoch.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,8 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
     private final UserProfileFileService userProfileFileService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final InvestmentService investmentService;
+
 
 
     /**
@@ -46,11 +49,21 @@ public class UserProfileController {
 
         // userId를 DTO에 설정
         dto.setUserId(userId.intValue());
+        /*
 
+        일단 주석
+        normprofile 만들기
+        UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
+        expectedIncome 만들기
+        InvestmentEntity investment = investmentService.createOrUpdateInvestment(Math.toIntExact(userId));
+        return ResponseEntity.ok(savedProfile);
+        */
         log.info("받은 데이터: {}", dto);
         UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
         return ResponseEntity.ok(savedProfile);
+
     }
+
 
     @PostMapping("/file")
     public ResponseEntity<String> submitUserProfile(
