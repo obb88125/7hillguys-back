@@ -56,15 +56,15 @@ public class ContractController {
         Map<String, Object> contractData = new HashMap<>();
         contractData.put("title", "계약 사항");
         contractData.put("investmentDetails", String.format(
-                "투자자는 %s부터 %s까지 매월 %d 원을 지급받으며, 총 %d 원을 지원받습니다. " +
-                        "최대 투자 금액은 %d 원이며, 투자금액 변동에 따라 상환 비율이 조정됩니다.",
+                "투자자는 %s부터 %s까지 매월 %,d 원을 지급받으며, 총 %,d 원을 지원받습니다. " +
+                        "최대 투자 금액은 %,d 원이며, 투자금액 변동에 따라 상환 비율이 조정됩니다.",
                 investment.getStartDate(), investment.getEndDate(),
                 investment.getMonthlyAllowance(), investment.getOriginalInvestValue(),
                 investment.getMaxInvestment()));
 
         contractData.put("repaymentTerms", String.format(
                 "돈을 갚는 날은 %s부터 시작되며, 55세가 되는 년도까지 입니다." +
-                        "월 상환 금액은 %.3f%%이며, 최대 상환 금액은 %.0f 원입니다.",
+                        "월 상환 금액은 %,.3f%%이며, 최대 상환 금액은 %,.0f 원입니다.",
                 investment.getEndDate(),investment.getRefundRate(), maxRepaymentAmount));
 
         contractData.put("agreements", new String[]{
