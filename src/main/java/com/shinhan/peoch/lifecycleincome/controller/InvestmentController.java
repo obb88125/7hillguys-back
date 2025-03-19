@@ -118,7 +118,7 @@ public class InvestmentController {
             return null;
         }
         Integer userId = userIdLong.intValue();
-        System.out.println(investmentService.calculateInvestmentDetails(userId).toString());
+//        System.out.println(investmentService.calculateInvestmentDetails(userId).toString());
         return investmentService.calculateInvestmentDetails(userId);
     }
 
@@ -293,6 +293,7 @@ public class InvestmentController {
 
     /**
      * SetAmountRequestDTO기반으로 investment 설정
+     * 투자 날짜가 오늘로 설정됨
      * @param jwtToken
      * @param requestDTO
      * @return
@@ -318,7 +319,6 @@ public class InvestmentController {
 
         // 투자 설정
         ApiResponseDTO<String> response = setInvestAmountService.setInvestment(userId, requestDTO);
-        System.out.println(response);
         // 결과 리턴
         if (response.isSuccess()) {
             return ResponseEntity.ok(response); // 200 OK
@@ -326,29 +326,35 @@ public class InvestmentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response); // 400 BAD REQUEST
         }
     }
-    @GetMapping("/investment/test")
+    @GetMapping("/investment/test/{userProfileId}")
     public ResponseEntity<?> getInvestmadfils(
+            @PathVariable("userProfileId") Long userProfileId,
             @CookieValue(value = "jwt", required = false) String jwtToken) {
-        if (jwtToken == null || jwtToken.isEmpty()) {
-            return null;
-        }
-        // JWT에서 userId 추출
-        Long userIdLong = jwtTokenProvider.getUserIdFromToken(jwtToken);
-        if (userIdLong == null) {
-            return null;
-        }
-        Integer userId = userIdLong.intValue();
+//        if (jwtToken == null || jwtToken.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT 토큰이 없거나 비어있습니다.");
+//        }
+//
+//        // JWT에서 userId 추출
+//        Long userIdLong = jwtTokenProvider.getUserIdFromToken(jwtToken);
+//        if (userIdLong == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 JWT 토큰입니다.");
+//        }
+//        Integer userId = userIdLong.intValue();
 
         try {
+//            ResponseEntity<ApiResponseDTO<String>> result = userProfileNormalizationPerplexityService
+//                    .normalizeAndSaveUserProfile(Math.toIntExact(userProfileId));
             ResponseEntity<ApiResponseDTO<String>> result = userProfileNormalizationPerplexityService
-                    .normalizeAndSaveUserProfile(userId);
+                    .normalizeProfileToExpectedIncome(Math.toIntExact(userProfileId));
+
+
             return ResponseEntity.ok(result);
         } catch (ObjectOptimisticLockingFailureException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("프로필 정규화 중 충돌이 발생했습니다. 잠시 후 다시 시도해주세요.");
         }
-
     }
+
 
 
 }

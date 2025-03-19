@@ -303,6 +303,7 @@ public class InvestmentService {
         UserProfileEntity userProfileEntity = userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
                 .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
         List<ExpectedIncomeEntity> incomes = expectedIncomeService.findByUserProfile_UserProfileId(userProfileEntity.getUserProfileId());
+//        System.out.println(incomes.toString());
         // 결과 반환
         return new InvestmentTempAllowanceDTO(availableAmount, investValue, progress, expectedIncome, refundRate, inflationRate,incomes);
     }
