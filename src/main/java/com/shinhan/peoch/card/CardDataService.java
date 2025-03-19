@@ -103,8 +103,8 @@ public class CardDataService {
     private int getAverageTotalFinalAmount(int age, LocalDate start, LocalDate end) {
         LocalDateTime startDateTime = start.atStartOfDay();
         LocalDateTime endDateTime = end.atTime(LocalTime.MAX);
-        Double avgTotal = paymentRepository.findAverageTotalFinalAmountByUserAgeAndDateBetween(age, startDateTime, endDateTime);
-
+        int korean_age = age + 1;
+        Double avgTotal = paymentRepository.findAverageTotalFinalAmountByUserAgeAndDateBetween(korean_age, startDateTime, endDateTime);
         return (avgTotal != null) ? avgTotal.intValue() : 0;
     }
 
