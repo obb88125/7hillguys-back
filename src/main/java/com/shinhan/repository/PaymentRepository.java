@@ -76,4 +76,13 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
 
     List<PaymentEntity> findByStatus(PaymentStatus paymentStatus);
 
+    @Query("SELECT SUM(p.discountAmount) " +
+            "FROM PaymentEntity p " +
+            "JOIN p.card c " +
+            "JOIN c.user u " +
+            "WHERE u.userId = :userId AND p.discountAmount > 0")
+    Integer findTotalDiscountByUserId(@Param("userId") Long userId);
+
+
+
 }

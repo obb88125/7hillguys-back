@@ -1,6 +1,7 @@
 package com.shinhan.peoch.payment;
 
 import com.shinhan.entity.*;
+import com.shinhan.peoch.card.BenefitStatementResponseDTO;
 import com.shinhan.repository.*;
 import org.springframework.stereotype.Service;
 
@@ -267,6 +268,19 @@ public class PaymentService {
         cardRepository.save(card);
 
         return new PosResponse(true, "환불이 완료되었습니다.", "REFUND_APPROVED");
+    }
+
+    // 전체 기간 할인 금액 조회
+    public BenefitStatementResponseDTO getTotalBenefit(Long userId) {
+        Integer totalBenefit = paymentRepository.findTotalDiscountByUserId(userId);
+
+        BenefitStatementResponseDTO dto = new BenefitStatementResponseDTO();
+        dto.setTotalBenefit(totalBenefit);
+        dto.setStatementList(null);
+        dto.setTotalBenefitDiscount(null);
+        dto.setUserName(null);
+
+        return dto;
     }
 
 }
