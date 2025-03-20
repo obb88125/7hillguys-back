@@ -78,7 +78,7 @@ public class CardController {
     }
 
     // 관리자 대시보드에서 카드 데이터(Total) 요청
-    @GetMapping("/cardData")
+    @GetMapping("/cardDataTotal")
     public CardDataTotalResponseDTO getCardDataTotal(@CookieValue(value = "jwt", required = false) String jwtToken,
                                               @RequestParam String date) {
         if (jwtToken == null || jwtToken.isEmpty()) {
@@ -91,24 +91,15 @@ public class CardController {
             return null;
         }
 
-        CardDataTotalResponseDTO response = cardDataTotalService.getCardDataTotal(userId, date);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        try {
-            String prettyJson = mapper.writeValueAsString(response);
-            System.out.println(prettyJson);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        CardDataMapResponseDTO response2 = cardDataMapService.getCardDataMap(userId, date);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        try {
-            String prettyJson = mapper.writeValueAsString(response2);
-            System.out.println(prettyJson);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+//        CardDataTotalResponseDTO response = cardDataTotalService.getCardDataTotal(userId, date);
+//        ObjectMapper mapper = new ObjectMapper();
+//        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+//        try {
+//            String prettyJson = mapper.writeValueAsString(response);
+//            System.out.println(prettyJson);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
 
         return cardDataTotalService.getCardDataTotal(userId, date);
     }
@@ -127,15 +118,15 @@ public class CardController {
             return null;
         }
 
-        CardDataMapResponseDTO response = cardDataMapService.getCardDataMap(userId, date);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        try {
-            String prettyJson = mapper.writeValueAsString(response);
-            System.out.println(prettyJson);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+//        CardDataMapResponseDTO response = cardDataMapService.getCardDataMap(userId, date);
+//        ObjectMapper mapper = new ObjectMapper();
+//        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+//        try {
+//            String prettyJson = mapper.writeValueAsString(response);
+//            System.out.println(prettyJson);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
 
         return cardDataMapService.getCardDataMap(userId, date);
     }
