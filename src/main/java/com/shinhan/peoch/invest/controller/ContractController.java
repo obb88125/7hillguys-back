@@ -13,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -53,19 +55,27 @@ public class ContractController {
         Double maxRepaymentAmount = expectedValueService.calculateTotalExpectedIncome(userId.intValue());
 
         // 계약서 기본 내용 (사용자 데이터 포함)
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.KOREA);
+
+        String monthlyAllowanceStr = nf.format(investment.getMonthlyAllowance());
+        String maxInvestmentStr = nf.format(investment.getMaxInvestment());
+        String originalInvestValueStr = nf.format(investment.getOriginalInvestValue());
+
         Map<String, Object> contractData = new HashMap<>();
         contractData.put("title", "계약 사항");
-        contractData.put("investmentDetails", String.format(
-                "투자자는 %s부터 %s까지 매월 %d 원을 지급받으며, 총 %d 원을 지원받습니다. " +
-                        "최대 투자 금액은 %d 원이며, 투자금액 변동에 따라 상환 비율이 조정됩니다.",
-                investment.getStartDate(), investment.getEndDate(),
-                investment.getMonthlyAllowance(), investment.getOriginalInvestValue(),
-                investment.getMaxInvestment()));
+        contractData.put("investmentDate", String.format(
+                "%s - %s 매월 %s 원을 지급받습니다.", investment.getStartDate(), investment.getEndDate(), monthlyAllowanceStr));
+        contractData.put("investmentMoney",String.format(
+                "총 %s 원을 지원받습니다. ", originalInvestValueStr));
+        contractData.put("investmentTotal",String.format(
+                "최대 투자 금액은 %s 원이며, 투자금액 변동에 따라 상환 비율이 조정됩니다.", maxInvestmentStr));
 
         contractData.put("repaymentTerms", String.format(
-                "돈을 갚는 날은 %s부터 시작되며, 55세가 되는 년도까지 입니다." +
-                        "월 상환 금액은 %.3f%%이며, 최대 상환 금액은 %.0f 원입니다.",
-                investment.getEndDate(),investment.getRefundRate(), maxRepaymentAmount));
+                "%s - 55세가 되는 년도까지 입니다.",
+                investment.getEndDate()));
+        contractData.put("repaymentTerms2", String.format(
+                "월 상환 금액은 %.3f%%입니다.",
+                investment.getRefundRate()));
 
         contractData.put("agreements", new String[]{
                 "본 계약서는 상호 동의 하에 체결됩니다.",

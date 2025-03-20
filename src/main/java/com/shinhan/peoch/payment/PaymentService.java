@@ -86,10 +86,10 @@ public class PaymentService {
                 .originalAmount(request.getAmount())
                 .discountAmount(discountAmount)
                 .finalAmount(finalAmount)
-                .date(LocalDateTime.now())
+                .date(request.getPaymentDate())
                 .status(installmentMonth > 1 ? PaymentStatus.PENDING : PaymentStatus.PAID)
                 .installmentMonth(installmentMonth)
-                .installmentRound(installmentMonth > 1 ? 0 : 1)
+                .installmentRound(installmentMonth > 1 ? 1 : 0)
                 .card(card)
                 .store(store)
                 .benefit(usedBenefitId != null ? benefitEntity : null)
@@ -117,7 +117,7 @@ public class PaymentService {
             }
 
             // 카드 만료일 검사
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM");
             YearMonth expYearMonth = YearMonth.parse(card.getExpirationDate(), formatter); // 카드 만료일 YearMonth 객체로 변환
             YearMonth currentYearMonth = YearMonth.now(); // 현재 연월(YearMonth)
 
