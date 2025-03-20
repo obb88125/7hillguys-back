@@ -112,13 +112,35 @@ public class CardApplicationController {
         }
 
         Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+
+
+        // InvestmentEntity 조회 후 Optional 체크 (투자 정보가 없는 경우 처리 예시)
+        Optional<InvestmentEntity> investmentOpt = investmentRepository.findByUserId(userId.intValue());
+        System.out.println("InvestmentOp: " + investmentOpt);
+        if (!investmentOpt.isPresent()) {
+            // 투자 정보가 없으면, 필요에 따라 다른 응답을 반환하거나 예외를 처리할 수 있음
+            return ResponseEntity.ok(
+                    Map.of("cardRegistered", Map.of("invest", false))
+            );
+
+        }
+
         log.info("--------!!!!!!!!!!!!!!!----------------------------------------");
         log.info(userId.toString());
-        // Optional로 카드 정보 존재 여부 확인
-        CardEntity cardRegistered = cardRepository.findByUser_UserId(userId) ;
+
+// 카드 정보 조회
+        CardEntity cardRegistered = cardRepository.findByUser_UserId(userId);
+
+// 카드 정보가 없으면 예외 처리 혹은 대체 응답 처리
+        if (cardRegistered == null) {
+            log.info("카드 정보가 존재하지 않습니다.");
+            return ResponseEntity.ok( Map.of("cardRegistered", Map.of("cardRegistered", false)));
+        }
+
         log.info("--------!!!!!!!!!!!!!!!----------------------------------------");
         log.info(cardRegistered.toString());
-        // 카드 정보가 있으면 true, 없으면 false를 반환
-        return ResponseEntity.ok(Map.of("cardRegistered", cardRegistered));
+
+// 카드 정보가 있으면 해당 정보를 반환
+        return ResponseEntity.ok( Map.of("cardRegistered", Map.of("cardRegistered", true)));
     }
 }
