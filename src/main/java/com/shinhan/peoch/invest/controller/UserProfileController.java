@@ -1,6 +1,8 @@
 package com.shinhan.peoch.invest.controller;
 
 import com.shinhan.entity.UserProfileEntity;
+import com.shinhan.peoch.UserProfileNormalization.perplexity.UserProfileNormalizationPerplexityService;
+import com.shinhan.peoch.UserProfileNormalization.service.AsyncProcessingService;
 import com.shinhan.peoch.invest.dto.UserProfileDTO;
 import com.shinhan.peoch.invest.service.UserProfileFileService;
 import com.shinhan.peoch.invest.service.UserProfileService;
@@ -22,6 +24,9 @@ public class UserProfileController {
     private final UserProfileFileService userProfileFileService;
     private final JwtTokenProvider jwtTokenProvider;
     private final InvestmentService investmentService;
+    private final UserProfileNormalizationPerplexityService userProfileNormalizationPerplexityService;
+    private final AsyncProcessingService asyncProcessingService;
+
 
 
 
@@ -49,17 +54,15 @@ public class UserProfileController {
 
         // userId를 DTO에 설정
         dto.setUserId(userId.intValue());
-        /*
 
-        일단 주석
-        normprofile 만들기
+
+        //profile 만들기
         UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
-        expectedIncome 만들기
-        InvestmentEntity investment = investmentService.createOrUpdateInvestment(Math.toIntExact(userId));
-        return ResponseEntity.ok(savedProfile);
-        */
-        log.info("받은 데이터: {}", dto);
-        UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
+
+        // 비동기 작업 트리거
+        asyncProcessingService.profileToExpectedIncome(savedProfile.getUserProfileId(), Math.toIntExact(userId));
+
+
         return ResponseEntity.ok(savedProfile);
 
     }
