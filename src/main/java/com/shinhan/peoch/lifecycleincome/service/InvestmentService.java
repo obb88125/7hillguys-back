@@ -231,7 +231,7 @@ public class InvestmentService {
         LocalDate endDate = calculateEndDate(user.getBirthdate());
         // 연 수익률 계산
         double annualizedReturnRate = calculateAnnualizedReturnRate(investment.getStartDate(), endDate, rateofreturn);
-
+        //userid로 넘겨줌
         double presentValue = expectedValueService.calculatePresentValue(userId);
         double refundRate = ((investAmount* (1+annualizedReturnRate)) / presentValue * 100);
         refundRate = Math.round(refundRate * 1000) / 1000.0;
@@ -303,6 +303,7 @@ public class InvestmentService {
         UserProfileEntity userProfileEntity = userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
                 .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
         List<ExpectedIncomeEntity> incomes = expectedIncomeService.findByUserProfile_UserProfileId(userProfileEntity.getUserProfileId());
+//        System.out.println(incomes.toString());
         // 결과 반환
         return new InvestmentTempAllowanceDTO(availableAmount, investValue, progress, expectedIncome, refundRate, inflationRate,incomes);
     }
