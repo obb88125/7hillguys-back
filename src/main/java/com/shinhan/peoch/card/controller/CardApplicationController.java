@@ -1,6 +1,7 @@
 package com.shinhan.peoch.card.controller;
 import com.shinhan.entity.CardDesignEntity;
 import com.shinhan.entity.CardEntity;
+import com.shinhan.entity.InvestmentEntity;
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.card.dto.CardRequestDTO;
 import com.shinhan.peoch.card.dto.UserInfoDTO;
@@ -11,6 +12,7 @@ import com.shinhan.peoch.design.service.CardDesignService;
 import com.shinhan.peoch.security.SecurityUser;
 import com.shinhan.peoch.security.jwt.JwtTokenProvider;
 import com.shinhan.repository.CardRepository;
+import com.shinhan.repository.InvestmentRepository;
 import com.shinhan.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -34,14 +37,15 @@ public class CardApplicationController {
 
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
+    private final InvestmentRepository investmentRepository;
 
 
 
     @PostMapping("/insert")
     public ResponseEntity<?> applyCard(
             @RequestPart("cardDesignDTO") CardDesignDTO cardDesignDTO,
-            @RequestPart("englishName") String englishName,
-            @RequestPart("pin") String pin,
+            @RequestPart("cardRequestDTO") CardRequestDTO cardRequestDTO,
+
             @RequestPart(value = "image", required = false) MultipartFile imageFile,
             @CookieValue(value = "jwt", required = false) String jwtToken
     ) {
@@ -53,16 +57,13 @@ public class CardApplicationController {
         Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
         // 로깅으로 전달된 값 확인
         log.info("CardRequestDTO: {}", cardDesignDTO);
-        log.info("영문 이름: {}", englishName);
-        log.info("PIN: {}", pin);
+
         if (imageFile != null) {
             log.info("이미지 파일 이름: {}", imageFile.getOriginalFilename());
         } else {
             log.info("이미지 파일 없음");
         }
-        CardRequestDTO cardRequestDTO = new CardRequestDTO();
-        cardRequestDTO.setEnglishName(englishName);
-        cardRequestDTO.setPin(pin);
+
 
         cardService.createCardApplication(userId, cardRequestDTO, cardDesignDTO, imageFile);
 
@@ -80,10 +81,25 @@ public class CardApplicationController {
         }
 
         Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+        Optional<InvestmentEntity> investmentOpt = investmentRepository.findByUserId(userId.intValue());
+        System.out.println("InvestmentOp" + investmentOpt);
+
+
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        UserInfoDTO dto = new UserInfoDTO(user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
+        UserInfoDTO dto = new UserInfoDTO();
+        dto.setAddress(user.getAddress());
+        dto.setName(user.getName());
+        dto.setPhone(user.getPhone());
+        dto.setEmail(user.getEmail());
+        if(investmentOpt.isPresent()){
+            InvestmentEntity inv = investmentOpt.get();
+            dto.setMonthlyAllowance(inv.getMonthlyAllowance());
+            dto.setMaxInvestment(inv.getMaxInvestment());
+            dto.setEndDate(inv.getEndDate());
+        }
+
         return ResponseEntity.ok(dto);
     }
 
