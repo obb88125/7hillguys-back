@@ -102,17 +102,14 @@ public class InvestmentService {
 
      @throws IllegalArgumentException 예상 소득 데이터가 없는 경우
      */
-    public InvestmentEntity createOrUpdateInvestment(Integer userId) {
+    public InvestmentEntity createOrUpdateInvestment(Integer userId, Integer userProfileId) {
         // 예상 소득 데이터 가져오기
-        UserProfileEntity userProfileEntity = userProfileRepository.findFirstByUserIdOrderByUpdatedAtDesc(userId)
-                .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
-        List<ExpectedIncomeEntity> incomeEntities = expectedIncomeRepository.findByUserProfileId(userProfileEntity.getUserProfileId());
-        if (incomeEntities.isEmpty()) {
-            throw new IllegalArgumentException("User not found");
-        }
+        UserProfileEntity userProfileEntity = userProfileRepository.findByUserProfileId(userProfileId);
 
-        // 가장 최근의 예상 소득 데이터 사용
-        ExpectedIncomeEntity latestIncomeEntity = incomeEntities.get(incomeEntities.size() - 1);
+        System.out.println(userProfileEntity);
+        ExpectedIncomeEntity latestIncomeEntity = expectedIncomeRepository.findByUserProfileIdOptional(userProfileEntity.getUserProfileId())
+                .orElseThrow(() -> new RuntimeException("아직 소득 데이터가 생성되지 않았습니다."));
+
         Map<Integer, Double> expectedIncome = parseJsonToMap(latestIncomeEntity.getExpectedIncome());
 
         // 국채 수익률 데이터 가져오기
@@ -140,12 +137,11 @@ public class InvestmentService {
         );
 
         // 기존 투자 확인
-        InvestmentEntity existingInvestment = investmentRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("해당 ID로 투자를 찾을 수 없습니다."));
+        Optional<InvestmentEntity> existingInvestment = investmentRepository.findByUserId(userId);
 
-        if (existingInvestment!=null) {
+        if (existingInvestment.isPresent()) {
             // 기존 투자 업데이트
-            InvestmentEntity investment = existingInvestment;
+            InvestmentEntity investment = existingInvestment.orElseThrow();
             investment.setExpectedIncome(latestIncomeEntity.getExpectedIncome());
             investment.setMaxInvestment((int)((totalPresentValue)*(0.2)/(1+annualizedReturnRate)));
             // 다른 필드들은 기존 값 유지

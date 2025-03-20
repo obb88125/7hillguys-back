@@ -1,5 +1,6 @@
 package com.shinhan.peoch.UserProfileNormalization.perplexity;
 
+import com.shinhan.entity.ExpectedIncomeEntity;
 import com.shinhan.entity.NormUserProfilesEntity;
 import com.shinhan.entity.UserProfileEntity;
 import com.shinhan.peoch.lifecycleincome.DTO.ApiResponseDTO;
@@ -119,19 +120,28 @@ public class UserProfileNormalizationPerplexityService {
                     "- 주소 점수(address): " + normalizedProfile.getAddress() + " (0-100 사이 값, 높을수록 좋은 지역)\n" +
                     "- 정신 상태 점수(mentalStatus): " + normalizedProfile.getMentalStatus() + " (0-100 사이 값, 높을수록 건강)\n\n" +
 
-                    "위 데이터를 기반으로 다음 규칙에 따라 20세부터 55세까지의 연령별 예상 연간 수입을 계산해주세요:\n" +
-                    "1. 20-27세: 학생 또는 사회 초년생으로 낮은 수입 또는 무수입\n" +
-                    "2. 28-35세: 경력 초기로 점차 수입 증가\n" +
-                    "3. 36-45세: 경력 중기로 수입 피크에 도달\n" +
-                    "4. 46-55세: 경력 후기로 안정적이거나 약간 감소하는 수입\n" +
-                    "5. 대학교 점수와 전공 점수가 높을수록 초기 수입과 최대 수입이 높아짐\n" +
-                    "6. 자격증 점수가 높을수록 경력 초기부터 중기까지 수입 증가율이 높아짐\n" +
-                    "7. 건강 상태와 정신 상태가 낮을수록 최대 수입과 후기 수입이 감소함\n\n" +
+                    "위 데이터를 기반으로 20세부터 55세까지의 연령별 예상 연간 수입을 계산해주세요. 다음 사항을 반드시 고려하세요:\n\n" +
+
+                    "1. 한국의 최신 직업별 소득 통계 데이터를 기반으로 현실적이고 구체적인 소득 예측 모델을 적용하세요.\n\n" +
+
+                    "2. 다음과 같은 현실적인 요소를 포함하여 실제 소득 데이터와 유사한 변동성을 반영하세요:\n" +
+                    "- 경기 침체나 경제 위기로 인한 일시적 소득 감소 구간 포함\n" +
+                    "- 승진이나 이직 등으로 인한 급격한 소득 증가 구간 포함\n" +
+                    "- 경력 단절 또는 휴직 후 복귀 시의 소득 변화 포함\n\n" +
+
+                    "3. 연령대별 특성을 다음과 같이 반영하세요:\n" +
+                    "- 20-27세: 소득을 0원으로 산정\n" +
+                    "- 28-35세: 경력 초기로 승진 및 이직에 따른 급격하고 불규칙한 소득 증가 패턴\n" +
+                    "- 36-45세: 경력 중기로 수입이 최대치에 도달하되 건강 및 정신 상태에 따라 일부 변동 포함\n" +
+                    "- 46-55세: 경력 후기로 산업 특성에 따라 수입이 정체되거나 완만히 증가하며 일부 변동성 포함\n\n" +
+
+                    "4. 매년 연속된 수입 변화율은 -5%에서 최대 +15% 범위 내에서 무작위로 변동시키고, 5~7년 주기로 더 큰 폭의 변화(-10%~+25%)를 추가하여 현실적인 통계적 변동성을 구현하세요.\n\n" +
 
                     "결과는 다음과 같은 JSON 형식으로만 반환해주세요. 다른 설명은 포함하지 마세요:\n" +
                     "{\n" +
-                    "    \"20\": 0, \"21\": 0, ... (각 연령별 예상 연간 수입, 원 단위)\n" +
+                    "   \"20\": 값, \"21\": 값, ... \"55\": 값 (각 연령별 예상 연간 수입, 원 단위)\n" +
                     "}";
+
 
 
             // Perplexity API 호출
@@ -139,19 +149,19 @@ public class UserProfileNormalizationPerplexityService {
 
             // 5. AI 응답에서 JSON 데이터 추출
             JSONObject expectedIncomeJson = extractJsonFromResponse(aiResponse);
-            System.out.println(aiResponse);
-            System.out.println(expectedIncomeJson);
-//            // 6. Expected Income 엔티티 조회 또는 생성
-//            ExpectedIncomeEntity expectedIncome = expectedIncomeRepository
-//                    .findByUserProfile_UserProfileId(userProfileId)
-//                    .orElse(new ExpectedIncomeEntity());
-//
+            // 6. Expected Income 엔티티 조회 또는 생성
+            ExpectedIncomeEntity expectedIncome = expectedIncomeRepository.findByUserProfileIdOptional(userProfileId)
+                    .orElse(ExpectedIncomeEntity.builder()
+                            .userProfile(userProfile)
+                            .expectedIncome(expectedIncomeJson.toString())
+                            .build());
+
 //            // 7. Expected Income 엔티티 업데이트
 //            expectedIncome.setUserProfile(userProfile);
 //            expectedIncome.setExpectedIncome(expectedIncomeJson.toString());
-//
-//            // 8. 저장
-//            expectedIncomeRepository.save(expectedIncome);
+
+            // 8. 저장
+            expectedIncomeRepository.save(expectedIncome);
 
             return ResponseEntity.ok(ApiResponseDTO.success("예상 수입 계산이 성공적으로 완료되었습니다."));
         } catch (ObjectOptimisticLockingFailureException e) {
@@ -191,8 +201,6 @@ public class UserProfileNormalizationPerplexityService {
 
         return defaultExpectedIncome;
     }
-
-
 
     // 프로필 데이터를 JSON 형태로 변환
     private JSONObject convertProfileToJson(UserProfileEntity profile) throws JSONException {

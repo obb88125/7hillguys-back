@@ -10,16 +10,36 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class AsyncProcessingService {
 
-    private UserProfileNormalizationPerplexityService userProfileNormalizationPerplexityService;
-    private InvestmentService investmentService;
-    //비동기로 처리하는 함수 모음
+    private final UserProfileNormalizationPerplexityService userProfileNormalizationPerplexityService;
+    private final InvestmentService investmentService;
 
-    //스레드 관련 설정은 asyncConfig에서 함
-    //profile이 설정된 순간 부터 해당 프로필로 쭉 처리
+    // 생성자 주입
+    public AsyncProcessingService(
+            UserProfileNormalizationPerplexityService userProfileNormalizationPerplexityService,
+            InvestmentService investmentService) {
+        this.userProfileNormalizationPerplexityService = userProfileNormalizationPerplexityService;
+        this.investmentService = investmentService;
+    }
+
     @Async("asyncExecutor")
-    public CompletableFuture<Void> profileToExpectedIncome(int userProfileId,int userId) {
-        userProfileNormalizationPerplexityService.normalizeAndSaveUserProfile(userProfileId);
-        investmentService.createOrUpdateInvestment(userId);
-        return CompletableFuture.completedFuture(null);
+    public CompletableFuture<Void> profileToExpectedIncome(int userProfileId, int userId) {
+        try {
+            System.out.println("비동기 처리 시작: " + Thread.currentThread().getName());
+
+            userProfileNormalizationPerplexityService.normalizeAndSaveUserProfile(userProfileId);
+            System.out.println("normalizeAndSaveUserProfile 완료");
+
+            userProfileNormalizationPerplexityService.normalizeProfileToExpectedIncome(userProfileId);
+            System.out.println("normalizeProfileToExpectedIncome 완료");
+
+            investmentService.createOrUpdateInvestment(userId,userProfileId);
+            System.out.println("createOrUpdateInvestment 완료");
+
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            System.err.println("비동기 처리 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
+            return CompletableFuture.failedFuture(e);
+        }
     }
 }

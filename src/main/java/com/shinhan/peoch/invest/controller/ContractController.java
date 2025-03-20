@@ -17,7 +17,6 @@ import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -46,12 +45,12 @@ public class ContractController {
             return ResponseEntity.status(401).body(Map.of("error", "잘못된 JWT입니다."));
         }
 
-        Optional<InvestmentEntity> investmentOpt = investmentRepository.findById(userId.intValue());
-        if (investmentOpt.isEmpty()) {
+        InvestmentEntity investmentOpt = investmentRepository.findInvestmentByUserId(userId);
+        if (investmentOpt==null) {
             return ResponseEntity.status(404).body(Map.of("error", "해당 사용자의 계약서 데이터를 찾을 수 없습니다."));
         }
 
-        InvestmentEntity investment = investmentOpt.get();
+        InvestmentEntity investment = investmentOpt;
         Double maxRepaymentAmount = expectedValueService.calculateTotalExpectedIncome(userId.intValue());
 
         // 계약서 기본 내용 (사용자 데이터 포함)
@@ -108,6 +107,7 @@ public class ContractController {
         Integer userId = userIdLong.intValue();
 
         try {
+
             byte[] pdf = contractService.generateAndSaveContractPdf(userId, request.getBase64Signature());
 
             HttpHeaders headers = new HttpHeaders();

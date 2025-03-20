@@ -1,18 +1,16 @@
 package com.shinhan.peoch.invest.service;
 
 import com.itextpdf.io.font.PdfEncodings;
-import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.layout.element.LineSeparator;
-import com.itextpdf.layout.element.Text;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.shinhan.entity.InvestmentEntity;
 import com.shinhan.entity.UserProfileEntity;
@@ -25,10 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
-import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
 @Slf4j
@@ -43,8 +40,10 @@ public class ContractService {
     @Transactional
     public byte[] generateAndSaveContractPdf(Integer userId, String base64Signature) throws Exception {
         try {
-            InvestmentEntity investment = investmentRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("해당 투자 정보를 찾을 수 없습니다."));
+
+
+            InvestmentEntity investment = investmentRepository.findInvestmentByUserId(userId.longValue());
+
 
             UserEntity user = userRepository.findById(Long.valueOf(userId))
                     .orElseThrow(() -> new RuntimeException("사용자 정보를 찾을 수 없습니다."));
