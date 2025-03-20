@@ -84,7 +84,7 @@ public class ContractService {
                 // 투자 조건
                 document.add(new Paragraph(new Text("2. 대출 조건").setFont(font).setBold()));
                 document.add(new Paragraph(new Text(" - 투자 금액: " + investment.getOriginalInvestValue() + " 원").setFont(font)));
-                document.add(new Paragraph(new Text(" - 최대 투자 가능 금액: " + investment.getMaxInvestment() + " 원").setFont(font)));
+                /*document.add(new Paragraph(new Text(" - 최대 투자 가능 금액: " + investment.getMaxInvestment() + " 원").setFont(font)));*/
                 document.add(new Paragraph(new Text(" - 투자 시작일: " + investment.getStartDate()).setFont(font)));
                 document.add(new Paragraph(new Text(" - 투자 종료일: " + investment.getEndDate()).setFont(font)));
                 document.add(new Paragraph(new Text(" - 월 지급액: " + investment.getMonthlyAllowance() + " 원").setFont(font)));
