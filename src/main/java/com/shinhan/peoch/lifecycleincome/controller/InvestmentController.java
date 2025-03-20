@@ -1,8 +1,8 @@
 package com.shinhan.peoch.lifecycleincome.controller;
 
-import com.shinhan.entity.InvestmentEntity;
 import com.shinhan.entity.UserProfileEntity;
 import com.shinhan.peoch.UserProfileNormalization.perplexity.UserProfileNormalizationPerplexityService;
+import com.shinhan.peoch.UserProfileNormalization.service.AsyncProcessingService;
 import com.shinhan.peoch.invest.service.UserProfileService;
 import com.shinhan.peoch.lifecycleincome.DTO.*;
 import com.shinhan.peoch.lifecycleincome.service.ExitCostService;
@@ -50,28 +50,31 @@ public class InvestmentController {
     @Autowired
     UserProfileNormalizationPerplexityService userProfileNormalizationPerplexityService;
 
-    /**
-     * investment 생성
-     * 해당 userid에 초기 investment 만듬
-     * @param jwtToken
-     * @return
-     */
-    @PostMapping("/investment")
-    public InvestmentEntity saveInvestment(
-            @CookieValue(value = "jwt", required = false) String jwtToken) {
-        if (jwtToken == null || jwtToken.isEmpty()) {
-            return null;
-        }
+    @Autowired
+    AsyncProcessingService asyncProcessingService;
 
-        // JWT에서 userId 추출
-        Long userIdLong = jwtTokenProvider.getUserIdFromToken(jwtToken);
-        if (userIdLong == null) {
-            return null;
-        }
-        Integer userId = userIdLong.intValue();
-
-        return investmentService.createOrUpdateInvestment(userId);
-    }
+//    /**
+//     * investment 생성
+//     * 해당 userid에 초기 investment 만듬
+//     * @param jwtToken
+//     * @return
+//     */
+//    @PostMapping("/investment")
+//    public InvestmentEntity saveInvestment(
+//            @CookieValue(value = "jwt", required = false) String jwtToken) {
+//        if (jwtToken == null || jwtToken.isEmpty()) {
+//            return null;
+//        }
+//
+//        // JWT에서 userId 추출
+//        Long userIdLong = jwtTokenProvider.getUserIdFromToken(jwtToken);
+//        if (userIdLong == null) {
+//            return null;
+//        }
+//        Integer userId = userIdLong.intValue();
+//
+//        return investmentService.createOrUpdateInvestment(userId,userProfileId);
+//    }
 
 
     /**
@@ -344,11 +347,11 @@ public class InvestmentController {
         try {
 //            ResponseEntity<ApiResponseDTO<String>> result = userProfileNormalizationPerplexityService
 //                    .normalizeAndSaveUserProfile(Math.toIntExact(userProfileId));
-            ResponseEntity<ApiResponseDTO<String>> result = userProfileNormalizationPerplexityService
-                    .normalizeProfileToExpectedIncome(Math.toIntExact(userProfileId));
+//            ResponseEntity<ApiResponseDTO<String>> result = userProfileNormalizationPerplexityService
+//                    .normalizeProfileToExpectedIncome(Math.toIntExact(userProfileId));
+            asyncProcessingService.profileToExpectedIncome(Math.toIntExact(userProfileId), 39);
 
-
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(userProfileId);
         } catch (ObjectOptimisticLockingFailureException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("프로필 정규화 중 충돌이 발생했습니다. 잠시 후 다시 시도해주세요.");
