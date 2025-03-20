@@ -63,14 +63,14 @@ public class ContractController {
         Map<String, Object> contractData = new HashMap<>();
         contractData.put("title", "계약 사항");
         contractData.put("investmentDate", String.format(
-                "%s - %s 매월 %s 원을 지급받습니다.", investment.getStartDate(), investment.getEndDate(), monthlyAllowanceStr));
+                "%s ~ %s", investment.getStartDate(), investment.getEndDate()));
+        contractData.put("monthlyAllowance", String.format(
+                "월 %s 원을 지급받습니다.", monthlyAllowanceStr));
         contractData.put("investmentMoney",String.format(
                 "총 %s 원을 지원받습니다. ", originalInvestValueStr));
-        contractData.put("investmentTotal",String.format(
-                "최대 투자 금액은 %s 원이며, 투자금액 변동에 따라 상환 비율이 조정됩니다.", maxInvestmentStr));
 
         contractData.put("repaymentTerms", String.format(
-                "%s - 55세가 되는 년도까지 입니다.",
+                "%s ~ 55세가 되는 1월 1일",
                 investment.getEndDate()));
         contractData.put("repaymentTerms2", String.format(
                 "월 상환 금액은 %.3f%%입니다.",
@@ -78,7 +78,8 @@ public class ContractController {
 
         contractData.put("agreements", new String[]{
                 "본 계약서는 상호 동의 하에 체결됩니다.",
-                "이용자는 중도에 계약을 해지할 수 있습니다. 단, 최대 상환 금액이 부과될 수 있습니다.",
+                "이용자는 중도에 계약을 해지할 수 있습니다.",
+                " 단, 최대 상환 금액이 부과될 수 있습니다.",
                 "상환 일정은 변동될 수 있으며, 연체 시 이자가 부과될 수 있습니다."
         });
 
