@@ -60,6 +60,7 @@ public class UserProfileController {
         UserProfileEntity savedProfile = userProfileService.saveUserProfile(dto);
 
         // 비동기 작업 트리거
+        //똑바로 안되는중 수정!
         asyncProcessingService.profileToExpectedIncome(savedProfile.getUserProfileId(), Math.toIntExact(userId));
 
 
