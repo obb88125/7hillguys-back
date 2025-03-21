@@ -1,5 +1,4 @@
 package com.shinhan.peoch.security;
-
 import com.shinhan.peoch.auth.entity.UserEntity;
 import com.shinhan.peoch.security.jwt.JwtUtil; // 추가
 import io.jsonwebtoken.Claims;
@@ -7,31 +6,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-
 @Slf4j
 public class SecurityUser extends User {
     private static final String ROLE_PREFIX = "ROLE_";
     private final UserEntity user;
     private final JwtUtil jwtUtil; // 추가
-
     public SecurityUser(UserEntity user, JwtUtil jwtUtil) { // JwtUtil 주입
         super(user.getEmail(), user.getPassword(), makeRole(user));
         this.user = user;
         this.jwtUtil = jwtUtil; // 추가
     }
-
     public Long getUserId() {
         return user.getUserId();
     }
-
     public String getName() {
         return user.getName();
     }
-    
     public LocalDate getBirthdate() {
         return user.getBirthdate();
     }
@@ -40,7 +33,6 @@ public class SecurityUser extends User {
         roleList.add(new SimpleGrantedAuthority(ROLE_PREFIX + user.getRole()));
         return roleList;
     }
-
     public Long getUserId(String token) {
         Claims claims = jwtUtil.parseClaims(token); // JwtUtil을 사용하도록 변경
         if (claims == null) {
@@ -62,15 +54,12 @@ public class SecurityUser extends User {
             return null;
         }
     }
-
     public String getEmail() {
         return user.getEmail();
     }
-
     public String getRole() {
         return user.getRole().name();
     }
-
     public UserEntity getUserEntity() {
         return user;
     }
