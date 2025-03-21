@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -31,6 +32,9 @@ public class SecurityUser extends User {
         return user.getName();
     }
     
+    public LocalDate getBirthdate() {
+        return user.getBirthdate();
+    }
     private static Collection<? extends GrantedAuthority> makeRole(UserEntity user) {
         Collection<GrantedAuthority> roleList = new ArrayList<>();
         roleList.add(new SimpleGrantedAuthority(ROLE_PREFIX + user.getRole()));
