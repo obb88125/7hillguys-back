@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -68,7 +69,12 @@ public class ContractService {
 
             try {
                 // 계약 제목
-                /*document.add(new Paragraph(new Text("대출 계약서").setFont(font).setBold().setFontSize(18)));*/
+                document.add(new Paragraph(new Text("대출 계약서")
+                        .setFont(font)
+                        .setBold()
+                        .setFontSize(18))
+                        .setTextAlignment(TextAlignment.CENTER));
+                NumberFormat formatter = NumberFormat.getInstance();
 
                 // 계약 당사자 정보
                 document.add(new Paragraph(new Text("1. 계약 당사자 정보").setFont(font).setBold()));
@@ -82,11 +88,11 @@ public class ContractService {
 
                 // 투자 조건
                 document.add(new Paragraph(new Text("2. 대출 조건").setFont(font).setBold()));
-                document.add(new Paragraph(new Text(" - 투자 금액: " + investment.getOriginalInvestValue() + " 원").setFont(font)));
+                document.add(new Paragraph(new Text(" - 투자 금액: " + formatter.format(investment.getOriginalInvestValue()) + " 원").setFont(font)));
                 /*document.add(new Paragraph(new Text(" - 최대 투자 가능 금액: " + investment.getMaxInvestment() + " 원").setFont(font)));*/
                 document.add(new Paragraph(new Text(" - 투자 시작일: " + investment.getStartDate()).setFont(font)));
                 document.add(new Paragraph(new Text(" - 투자 종료일: " + investment.getEndDate()).setFont(font)));
-                document.add(new Paragraph(new Text(" - 월 지급액: " + investment.getMonthlyAllowance() + " 원").setFont(font)));
+                document.add(new Paragraph(new Text(" - 월 지급액: " + formatter.format(investment.getMonthlyAllowance()) + " 원").setFont(font)));
 
                 LocalDate birthDate = user.getBirthdate();
                 // 55세 되는 날짜 계산
@@ -100,13 +106,10 @@ public class ContractService {
                 document.add(new Paragraph(new Text(" - 상환 개시일: " + investment.getEndDate() + " ~ " + retirementDateFormatted).setFont(font)));
                 document.add(new Paragraph(new Text(" - 상환 금액: 월급여의 " + investment.getRefundRate() + "%").setFont(font)));
 
-                //조기 상환 규정
-                document.add(new Paragraph(new Text("4. 조기 상환 규정").setFont(font).setBold()));
-
                 // 법적 책임 및 기타 약관
-                document.add(new Paragraph(new Text("6. 법적 책임 및 기타 약관").setFont(font).setBold()));
+                document.add(new Paragraph(new Text("4. 법적 책임 및 기타 약관").setFont(font).setBold()));
                 document.add(new Paragraph(new Text(" - 본 계약서는 상호 동의 하에 체결됩니다.").setFont(font)));
-                document.add(new Paragraph(new Text(" - 이용자가 원하면 계약은 중도에 해지할 수 있습니다..").setFont(font)));
+                document.add(new Paragraph(new Text(" - 이용자가 원하면 계약은 중도에 해지할 수 있습니다.").setFont(font)));
                 document.add(new Paragraph(new Text(" - 본 계약과 관련된 모든 분쟁은 대한민국 법률에 따라 해결됩니다.").setFont(font)));
                 document.add(new Paragraph(new Text(" - 기타 사항은 대출 기관의 약관을 따릅니다.").setFont(font)));
 
