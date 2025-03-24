@@ -31,8 +31,11 @@ public class UserSearchController {
     @Autowired
     private UserSearchService UserSearchService;
 
-    private final CardDataTotalService cardDataTotalService = null;
-    private final CardDataMapService cardDataMapService = null;
+    @Autowired
+    private CardDataTotalService cardDataTotalService;
+    
+    @Autowired
+    private CardDataMapService cardDataMapService;
    
     @GetMapping("/search")
     public ResponseEntity<?> searchUsers(@RequestParam("query") String query) {
@@ -87,27 +90,24 @@ public class UserSearchController {
         String userType = securityUser.getRole();
         return userType;
     }
-
-
-        // 관리자 대시보드에서 카드 데이터(Total) 요청
+ 
     @GetMapping("/cardDataTotal")
-    public CardDataTotalResponseDTO getCardDataTotal(@RequestParam("userId") Long userId,
+    public CardDataTotalResponseDTO getCardDataTotal(@RequestParam("userid") Long userid,
                                               @RequestParam String date) {
 
-        if (userId == null) {
+        if (userid == null) {
             return null;
         }
-        return cardDataTotalService.getCardDataTotal(userId, date);
-    }
+        return cardDataTotalService.getCardDataTotal(userid, date);
+    } 
 
-    // 관리자 대시보드에서 카드 데이터(Map) 요청
     @GetMapping("/cardDataMap")
-    public CardDataMapResponseDTO getCardDataMap(@RequestParam("userId") Long userId,
+    public CardDataMapResponseDTO getCardDataMap(@RequestParam("userid") Long userid,
                                               @RequestParam String date) {
-        if (userId == null) {
+        if (userid == null) {
             return null;
         }
-        return cardDataMapService.getCardDataMap(userId, date);
+        return cardDataMapService.getCardDataMap(userid, date);
     }
 
 
