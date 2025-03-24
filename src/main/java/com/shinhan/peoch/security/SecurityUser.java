@@ -1,14 +1,17 @@
 package com.shinhan.peoch.security;
-import com.shinhan.peoch.auth.entity.UserEntity;
-import com.shinhan.peoch.security.jwt.JwtUtil; // 추가
-import io.jsonwebtoken.Claims;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.util.ArrayList; // 추가
+import java.util.Collection;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
+
+import com.shinhan.peoch.auth.entity.UserEntity;
+import com.shinhan.peoch.security.jwt.JwtUtil;
+
+import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecurityUser extends User {
     private static final String ROLE_PREFIX = "ROLE_";
