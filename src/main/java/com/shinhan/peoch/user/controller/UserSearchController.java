@@ -1,12 +1,9 @@
 package com.shinhan.peoch.user.controller;
 
-import com.shinhan.entity.InvestmentEntity;
-import com.shinhan.peoch.auth.entity.UserEntity;
-import com.shinhan.peoch.invest.service.UserProfileService;
-import com.shinhan.peoch.security.SecurityUser;
-import com.shinhan.peoch.user.dto.UserInfoDTO;
-import com.shinhan.peoch.user.service.UserSearchService;
-import com.shinhan.repository.InvestmentRepository;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +13,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.List;
+import com.shinhan.entity.InvestmentEntity;
+import com.shinhan.peoch.auth.entity.UserEntity;
+import com.shinhan.peoch.card.CardDataMapResponseDTO;
+import com.shinhan.peoch.card.CardDataMapService;
+import com.shinhan.peoch.card.CardDataTotalResponseDTO;
+import com.shinhan.peoch.card.CardDataTotalService;
+import com.shinhan.peoch.security.SecurityUser;
+import com.shinhan.peoch.user.dto.UserInfoDTO;
+import com.shinhan.peoch.user.service.UserSearchService;
+import com.shinhan.repository.InvestmentRepository;
 @RestController
 @RequestMapping("/api/user")
 public class UserSearchController {
@@ -26,40 +30,41 @@ public class UserSearchController {
     private InvestmentRepository investmentRepository;
     @Autowired
     private UserSearchService UserSearchService;
-    @Autowired
-    private UserProfileService userProfileService;
+
+    private final CardDataTotalService cardDataTotalService = null;
+    private final CardDataMapService cardDataMapService = null;
+   
     @GetMapping("/search")
     public ResponseEntity<?> searchUsers(@RequestParam("query") String query) {
-        // 검색어가 비어있는 경우 400 에러 반환
         if(query == null || query.trim().isEmpty()){
-            return new ResponseEntity<>("검색어(query)가 필요합니다.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("검색어 없음", HttpStatus.BAD_REQUEST);
         }
         try {
             List<UserEntity> users = UserSearchService.searchUsersByName(query);
             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>("서버 내부 에러가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("서버 내부 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @GetMapping("/info")
     public ResponseEntity<?> getUserInfos(@RequestParam("userid") Long userid) {
         if (userid == null) {
-            return new ResponseEntity<>("사용자 아이디(userid)가 필요합니다.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("사용자 아이디 필요.", HttpStatus.BAD_REQUEST);
         }
         try {
             UserInfoDTO dto = UserSearchService.getAdminUserFlatDetail(userid);
             return new ResponseEntity<>(dto, HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>("서버 내부 에러가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("서버 내부 에러 발생.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @GetMapping("/expectedincome")
     public String getExpectedIncomes(
             @AuthenticationPrincipal SecurityUser securityUser) {
         if (securityUser == null) {
-            throw new RuntimeException("인증되지 않은 사용자입니다.");
+            throw new RuntimeException("인증되지 않은 사용자.");
         }
         InvestmentEntity investment = investmentRepository.findInvestmentByUserId(securityUser.getUserId());
         String expectedincome = investment.getExpectedIncome();
@@ -68,10 +73,42 @@ public class UserSearchController {
     @GetMapping("/age")
     public int getUserAge(@AuthenticationPrincipal SecurityUser securityUser){
         if (securityUser == null) {
-            throw new RuntimeException("인증되지 않은 사용자입니다.");
+            throw new RuntimeException("인증되지 않은 사용자.");
         }
         LocalDate birthdate = securityUser.getBirthdate();
         int age = Period.between(birthdate, LocalDate.now()).getYears();
         return age;
     }
+    @GetMapping("/usertype")
+    public String getUserType(@AuthenticationPrincipal SecurityUser securityUser){
+        if (securityUser == null) {
+            throw new RuntimeException("인증되지 않은 사용자.");
+        }
+        String userType = securityUser.getRole();
+        return userType;
+    }
+
+
+        // 관리자 대시보드에서 카드 데이터(Total) 요청
+    @GetMapping("/cardDataTotal")
+    public CardDataTotalResponseDTO getCardDataTotal(@RequestParam("userId") Long userId,
+                                              @RequestParam String date) {
+
+        if (userId == null) {
+            return null;
+        }
+        return cardDataTotalService.getCardDataTotal(userId, date);
+    }
+
+    // 관리자 대시보드에서 카드 데이터(Map) 요청
+    @GetMapping("/cardDataMap")
+    public CardDataMapResponseDTO getCardDataMap(@RequestParam("userId") Long userId,
+                                              @RequestParam String date) {
+        if (userId == null) {
+            return null;
+        }
+        return cardDataMapService.getCardDataMap(userId, date);
+    }
+
+
 }

@@ -117,7 +117,7 @@ public class CardApplicationService {
             }
             String originalFilename = imageFile.getOriginalFilename();
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String filename = username + "_" + System.currentTimeMillis() + extension;
+            String filename = "username" + "_" + System.currentTimeMillis() + extension;
             File destFile = new File(dir, filename);
             imageFile.transferTo(destFile);
             return "image/" + filename;
