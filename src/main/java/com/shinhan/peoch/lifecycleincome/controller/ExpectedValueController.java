@@ -24,7 +24,8 @@ public class ExpectedValueController {
 
     @GetMapping("/expectedvalue/{userId}")
     public Double getExpectedValue(@PathVariable Integer userId) {
-        return expectedValueService.calculatePresentValue(userId);
+//        System.out.println(expectedValueService.calculatePresentValue(userId));
+        return expectedValueService.calculatePresentValue(userId)*5;
     }
     @GetMapping("/expectedincome/{userProfileId}")
     public ResponseEntity<List<ExpectedIncomeEntity>> getExpectedIncomes(
