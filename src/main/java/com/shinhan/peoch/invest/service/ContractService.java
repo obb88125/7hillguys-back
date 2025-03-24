@@ -109,7 +109,7 @@ public class ContractService {
                 // 법적 책임 및 기타 약관
                 document.add(new Paragraph(new Text("4. 법적 책임 및 기타 약관").setFont(font).setBold()));
                 document.add(new Paragraph(new Text(" - 본 계약서는 상호 동의 하에 체결됩니다.").setFont(font)));
-                document.add(new Paragraph(new Text(" - 이용자가 원하면 계약은 중도에 해지할 수 있습니다..").setFont(font)));
+                document.add(new Paragraph(new Text(" - 이용자가 원하면 계약은 중도에 해지할 수 있습니다.").setFont(font)));
                 document.add(new Paragraph(new Text(" - 본 계약과 관련된 모든 분쟁은 대한민국 법률에 따라 해결됩니다.").setFont(font)));
                 document.add(new Paragraph(new Text(" - 기타 사항은 대출 기관의 약관을 따릅니다.").setFont(font)));
 
