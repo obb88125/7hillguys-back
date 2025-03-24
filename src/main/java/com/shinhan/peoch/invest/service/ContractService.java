@@ -98,7 +98,7 @@ public class ContractService {
                 //상환 조건
                 document.add(new Paragraph(new Text("3. 상환 조건").setFont(font).setBold()));
                 document.add(new Paragraph(new Text(" - 상환 개시일: " + investment.getEndDate() + " ~ " + retirementDateFormatted).setFont(font)));
-                document.add(new Paragraph(new Text(" - 상환 금액: 월급의 " + investment.getRefundRate() + "%").setFont(font)));
+                document.add(new Paragraph(new Text(" - 상환 금액: 월급여의 " + investment.getRefundRate() + "%").setFont(font)));
 
                 //조기 상환 규정
                 document.add(new Paragraph(new Text("4. 조기 상환 규정").setFont(font).setBold()));
@@ -157,11 +157,3 @@ public class ContractService {
         }
     }
 }
-/*
-document.add(new Paragraph(new Text(" - 월 상환 퍼센트: " + investment.getStartDate()).setFont(font)));
-            document.add(new Paragraph(new Text(" - 연체 시 연체 이자율: " + investment.getStartDate()).setFont(font)));
-            document.add(new Paragraph(new Text(" - 연체 시 추가 페널티: " + investment.getStartDate()).setFont(font)));
-
-            document.add(new Paragraph(new Text(" - 최소 상황 금액: " + investment.getOriginalInvestValue() + " 원").setFont(font)));
-            document.add(new Paragraph(new Text(" - 최대 상황 금액: " + investment.getOriginalInvestValue() + " 원").setFont(font)));
-document.add(new Paragraph(new Text(" - 조기 상환 수수료: " + investment.getEarlyRepaymentFee() + " 원").setFont(font)));*/
