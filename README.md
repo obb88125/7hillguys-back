@@ -9,9 +9,7 @@
 
 ## 🌐 배포 주소
 
-- **도메인**: http://peoch.shinhanacademy.co.kr
-- **프론트엔드**: http://peoch.shinhanacademy.co.kr:80
-- **백엔드**: http://peoch.shinhanacademy.co.kr:8080
+- **도메인**: http://lvndr.kro.kr
 
 ---
 
