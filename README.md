@@ -180,14 +180,13 @@ Frontend
 Backend  
 - Java 17  
 - Spring Boot  
-- Spring Security  
-- Redis  
-- MariaDB  
+- Spring Security 
+- MySQL
 - Gradle  
 
 CI/CD & DevOps  
 - Podman  
-- GitHub Actions  
+- Jenkins
 
 Communication & Collaboration  
 - GitHub  
