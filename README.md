@@ -70,8 +70,9 @@
 
 | GitHub ID | 담당 기능 |
 |-----------|------------|
-| @chocolatestain |  CI/CD 자동화, 인프라 운영, 관리자 대시보드, 메인 페이지 디자인, UI/UX 설계 |
+
 | @obb88125 | 프론트엔드 리드, AI 투자 심사 및 비즈니스 로직 플로우, DB 설계 |
+| @chocolatestain |  CI/CD 자동화, 인프라 운영, 관리자 대시보드, 메인 페이지 디자인, UI/UX 설계 |
 | @dmlcksghd | 백엔드 총괄, 회원가입/로그인/마이페이지, 인증/인가, JWT 로그인, 계약서 애니메이션 및 전자서명 |
 | @minyoung0302 | 교육 기반 추천 분석 backend 및 frontend, 메인 페이지 Frontend |
 | @yuseonghun | 교육 기반 추천 분석 backend 및 frontend, RadarChart 시각화 |
