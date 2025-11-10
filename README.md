@@ -111,7 +111,7 @@
 # Frontend 
 ### (https://github.com/shinhan-7hillguys/7hillguys-front)
 ```
-git clone https://github.com/chocolatestain/7hillguys-front -b release
+git clone https://github.com/obb88125/7hillguys-front -b release
 cd 7hillguys-front
 npm install
 npm start
@@ -119,7 +119,7 @@ npm start
 
 # Backend
 ```
-git clone https://github.com/chocolatestain/7hillguys-back -b release
+git clone https://github.com/obb88125/7hillguys-back -b release
 cd 7hillguys-back
 ./gradlew bootRun
 ```
